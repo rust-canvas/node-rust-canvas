@@ -1,0 +1,33 @@
+{
+  "name": "node-rust-canvas",
+  "version": "0.0.0",
+  "description": "rust-canvas NodeJS binding",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "shx rm -rf lib && tsc -p tsconfig.json",
+    "test": "tslint -c tslint.json -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rust-canvas/node-rust-canvas.git"
+  },
+  "keywords": [
+    "Rust",
+    "Canvas",
+    "node-canvas",
+    "neon-binding"
+  ],
+  "author": "lynweklm@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rust-canvas/node-rust-canvas/issues"
+  },
+  "homepage": "https://github.com/rust-canvas/node-rust-canvas#readme",
+  "devDependencies": {
+    "shx": "^0.2.2",
+    "tslint": "^5.9.1",
+    "tslint-eslint-rules": "^4.1.1",
+    "typescript": "^2.7.1"
+  }
+}
