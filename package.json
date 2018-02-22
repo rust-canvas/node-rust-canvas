@@ -5,9 +5,10 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "build": "shx rm -rf lib && tsc -p tsconfig.json",
+    "build": "shx rm -rf lib && tsc -p src/tsconfig.json",
     "build:native": "RUST_BACKTRACE=1 neon build",
-    "test": "tslint -c tslint.json -p tsconfig.json"
+    "test": "tslint -c tslint.json -p tsconfig.json",
+    "watch": "tsc -p src/tsconfig.json --watch --pretty --diagnostics"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/node": "^9.4.6",
     "neon-cli": "^0.1.22",
+    "sharp": "^0.19.0",
     "shx": "^0.2.2",
     "tslint": "^5.9.1",
     "tslint-eslint-rules": "^5.0.0",

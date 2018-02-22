@@ -111,8 +111,8 @@ export class Context2D {
   get lineDashOffset(): Context2DState['lineDashOffset'] {
     return this.state.lineDashOffset
   }
-  set lineDashOffest(lineDashOffest: Context2DState['lineDashOffset']) {
-    this.state.lineDashOffset = lineDashOffest
+  set lineDashOffset(lineDashOffset: Context2DState['lineDashOffset']) {
+    this.state.lineDashOffset = lineDashOffset
   }
   get lineJoin(): Context2DState['lineJoin'] {
     return this.state.lineJoin
@@ -176,11 +176,11 @@ export class Context2D {
   }
   private dashPattern?: number[]
 
-  private state: Context2DState = { ...Context2D.defaultState }
+  state: Context2DState = { ...Context2D.defaultState }
 
-  private states = [this.state]
+  states = [this.state]
 
-  private actions: Types.Action[] = []
+  actions: Types.Action[] = []
 
   constructor(public canvas: CanvasElement) {
     Object.assign(this, this.state)
@@ -345,7 +345,7 @@ export class Context2D {
   }
 
   restore() {
-    this.state = this.states[this.states.length - 1]
+    this.state = this.states.shift()!
   }
 
   rotate(angle: number) {
@@ -355,7 +355,7 @@ export class Context2D {
   }
 
   save() {
-    this.states.push(this.state)
+    this.states.unshift(this.state)
     this.state = { ...this.state }
   }
 
