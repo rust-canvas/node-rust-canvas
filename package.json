@@ -6,6 +6,7 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "shx rm -rf lib && tsc -p tsconfig.json",
+    "build:native": "RUST_BACKTRACE=1 neon build",
     "test": "tslint -c tslint.json -p tsconfig.json"
   },
   "repository": {
@@ -25,6 +26,8 @@
   },
   "homepage": "https://github.com/rust-canvas/node-rust-canvas#readme",
   "devDependencies": {
+    "@types/node": "^9.4.6",
+    "neon-cli": "^0.1.22",
     "shx": "^0.2.2",
     "tslint": "^5.9.1",
     "tslint-eslint-rules": "^5.0.0",
