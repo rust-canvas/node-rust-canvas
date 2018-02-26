@@ -35,7 +35,7 @@ export interface Context2DState {
 }
 
 export class Context2D {
-  private static defaultState: Context2DState = {
+  static defaultState: Context2DState = {
     fillStyle: '#000',
     font: '10px sans-serif',
     globalAlpha: 1.0,
@@ -77,102 +77,153 @@ export class Context2D {
     this.state.transformD = transform.d
     this.state.transformE = transform.e
     this.state.transformF = transform.f
+    this.actions.push({
+      type: 'SET_CURRENTTRANSFORM', transform,
+    })
   }
   get fillStyle(): Context2DState['fillStyle'] {
     return this.state.fillStyle
   }
   set fillStyle(fillStyle: Context2DState['fillStyle']) {
     this.state.fillStyle = fillStyle
+    this.actions.push({
+      type: 'SET_FILLSTYLE', fillStyle,
+    })
   }
   get font(): Context2DState['font'] {
     return this.state.font
   }
   set font(font: Context2DState['font']) {
     this.state.font = font
+    this.actions.push({
+      type: 'SET_FONT', font,
+    })
   }
   get globalAlpha(): Context2DState['globalAlpha'] {
     return this.state.globalAlpha
   }
   set globalAlpha(globalAlpha: Context2DState['globalAlpha']) {
     this.state.globalAlpha = globalAlpha
+    this.actions.push({
+      type: 'SET_GLOBALALPHA', globalAlpha,
+    })
   }
   get globalCompositeOperation(): Context2DState['globalCompositeOperation'] {
     return this.state.globalCompositeOperation
   }
   set globalCompositeOperation(globalCompositeOperation: Context2DState['globalCompositeOperation']) {
     this.state.globalCompositeOperation = globalCompositeOperation
+    this.actions.push({
+      type: 'SET_GLOBALCOMPOSITEOPERATION', globalCompositeOperation,
+    })
   }
   get lineCap(): Context2DState['lineCap'] {
     return this.state.lineCap
   }
   set lineCap(lineCap: Context2DState['lineCap']) {
     this.state.lineCap = lineCap
+    this.actions.push({
+      type: 'SET_LINECAP', lineCap,
+    })
   }
   get lineDashOffset(): Context2DState['lineDashOffset'] {
     return this.state.lineDashOffset
   }
   set lineDashOffset(lineDashOffset: Context2DState['lineDashOffset']) {
     this.state.lineDashOffset = lineDashOffset
+    this.actions.push({
+      type: 'SET_LINEDASHOFFSET', lineDashOffset,
+    })
   }
   get lineJoin(): Context2DState['lineJoin'] {
     return this.state.lineJoin
   }
   set lineJoin(lineJoin: Context2DState['lineJoin']) {
     this.state.lineJoin = lineJoin
+    this.actions.push({
+      type: 'SET_LINEJOIN', lineJoin,
+    })
   }
   get lineWidth(): Context2DState['lineWidth'] {
     return this.state.lineWidth
   }
   set lineWidth(lineWidth: Context2DState['lineWidth']) {
     this.state.lineWidth = lineWidth
+    this.actions.push({
+      type: 'SET_LINEWIDTH', lineWidth,
+    })
   }
   get miterLimit(): Context2DState['miterLimit'] {
     return this.state.miterLimit
   }
   set miterLimit(miterLimit: Context2DState['miterLimit']) {
     this.state.miterLimit = miterLimit
+    this.actions.push({
+      type: 'SET_MITERLIMIT', miterLimit,
+    })
   }
   get shadowBlur(): Context2DState['shadowBlur'] {
     return this.state.shadowBlur
   }
   set shadowBlur(shadowBlur: Context2DState['shadowBlur']) {
     this.state.shadowBlur = shadowBlur
+    this.actions.push({
+      type: 'SET_SHADOWBLUR', shadowBlur,
+    })
   }
   get shadowColor(): Context2DState['shadowColor'] {
     return this.state.shadowColor
   }
   set shadowColor(shadowColor: Context2DState['shadowColor']) {
     this.state.shadowColor = shadowColor
+    this.actions.push({
+      type: 'SET_SHADOWCOLOR', shadowColor,
+    })
   }
   get shadowOffsetX(): Context2DState['shadowOffsetX'] {
     return this.state.shadowOffsetX
   }
   set shadowOffsetX(shadowOffsetX: Context2DState['shadowOffsetX']) {
     this.state.shadowOffsetX = shadowOffsetX
+    this.actions.push({
+      type: 'SET_SHADOWOFFSETX', shadowOffsetX,
+    })
   }
   get shadowOffsetY(): Context2DState['shadowOffsetY'] {
     return this.state.shadowOffsetY
   }
   set shadowOffsetY(shadowOffsetY: Context2DState['shadowOffsetY']) {
     this.state.shadowOffsetY = shadowOffsetY
+    this.actions.push({
+      type: 'SET_SHADOWOFFSETY', shadowOffsetY,
+    })
   }
   get strokeStyle(): Context2DState['strokeStyle'] {
     return this.state.strokeStyle
   }
   set strokeStyle(strokeStyle: Context2DState['strokeStyle']) {
     this.state.strokeStyle = strokeStyle
+    this.actions.push({
+      type: 'SET_STROKESTYLE', strokeStyle,
+    })
   }
   get textAlign(): Context2DState['textAlign'] {
     return this.state.textAlign
   }
   set textAlign(textAlign: Context2DState['textAlign']) {
     this.state.textAlign = textAlign
+    this.actions.push({
+      type: 'SET_TEXTALIGN', textAlign,
+    })
   }
   get textBaseline(): Context2DState['textBaseline'] {
     return this.state.textBaseline
   }
   set textBaseline(textBaseline: Context2DState['textBaseline']) {
     this.state.textBaseline = textBaseline
+    this.actions.push({
+      type: 'SET_TEXTBASELINE', textBaseline,
+    })
   }
   private dashPattern?: number[]
 
@@ -186,7 +237,7 @@ export class Context2D {
     Object.assign(this, this.state)
   }
 
-  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise = false ) {
+  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise = false) {
     this.actions.push({
       type: 'ARC', x, y, radius, startAngle, endAngle, anticlockwise,
     })
@@ -287,8 +338,10 @@ export class Context2D {
     })
   }
 
-  fillText() {
-    console.warn('fillText is unsupported now')
+  fillText(text: string, x: number, y: number, maxWidth?: number) {
+    this.actions.push({
+      type: 'FILLTEXT', text, x, y, maxWidth,
+    })
   }
 
   getImageData(sx: number, sy: number, sw: number, sh: number) {
@@ -316,8 +369,10 @@ export class Context2D {
     })
   }
 
-  measureText() {
-    console.warn('measureText is unsupported now')
+  measureText(text: string) {
+    this.actions.push({
+      type: 'MEASURETEXT', text,
+    })
   }
 
   moveTo(x: number, y: number) {
@@ -346,6 +401,9 @@ export class Context2D {
 
   restore() {
     this.state = this.states.shift()!
+    this.actions.push({
+      type: 'RESTORE', state: this.state,
+    })
   }
 
   rotate(angle: number) {
@@ -357,6 +415,9 @@ export class Context2D {
   save() {
     this.states.unshift(this.state)
     this.state = { ...this.state }
+    this.actions.push({
+      type: 'SAVE', state: this.state,
+    })
   }
 
   scale(x: number, y: number) {
@@ -395,8 +456,10 @@ export class Context2D {
     })
   }
 
-  strokeText() {
-    console.warn('strokeText is unsupported now')
+  strokeText(text: string, x: number, y: number, maxWidth?: number) {
+    this.actions.push({
+      type: 'STROKETEXT', text, x, y, maxWidth,
+    })
   }
 
   transform(a: number, b: number, c: number, d: number, e: number, f: number) {

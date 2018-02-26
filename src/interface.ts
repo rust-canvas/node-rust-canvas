@@ -1,11 +1,18 @@
 import { ImageData } from './image-data'
+import { Context2DState } from './context-2d'
 
 export type FillRule = 'nonzero' | 'evenodd'
 
 export type Action = ArcAction | ArcToAction | BeginPathAction | BezierCurveToAction | ClearRectAction |
   ClipAction | ClosePathAction | CreateLinearGradientAction | CreateImageDataAction | CreateRadialGradientAction |
-  FillAction | FillRectAction | LineToAction | MoveToAction | PutImageDataAction | QuadraticCurveToAction |
-  RectAction | RotateAction | ScaleAction | StrokeAction | StrokeRectAction | TransformAction | TranslateAction
+  FillAction | FillRectAction | FillTextAction | LineToAction | MeasureTextAction |
+  MoveToAction | PutImageDataAction | QuadraticCurveToAction | RectAction | RestoreAction |
+  RotateAction | SaveAction | ScaleAction | StrokeAction | StrokeRectAction |
+  StrokeTextAction | TransformAction | TranslateAction |
+  SetCurrentTransformAction | SetFillStyleAction | SetFontAction | SetGlobalAlphaAction | SetGlobalCompositeOperationAction |
+  SetLineCapAction | SetLineDashOffsetAction | SetLineJoinAction | SetLineWidthAction | SetMiterLimitAction |
+  SetShadowBlurAction | SetShadowColorAction | SetShadowOffsetXAction | SetShadowOffsetYAction | SetStrokeStyleAction |
+  SetTextAlignAction | SetTextBaselineAction
 
 export interface ArcAction {
   type: 'ARC'
@@ -85,10 +92,23 @@ export interface FillRectAction {
   height: number
 }
 
+export interface FillTextAction {
+  type: 'FILLTEXT'
+  text: string
+  x: number
+  y: number
+  maxWidth?: number
+}
+
 export interface LineToAction {
   type: 'LINETO'
   x: number
   y: number
+}
+
+export interface MeasureTextAction {
+  type: 'MEASURETEXT'
+  text: string
 }
 
 export interface MoveToAction {
@@ -123,9 +143,19 @@ export interface RectAction {
   height: number
 }
 
+export interface RestoreAction {
+  type: 'RESTORE'
+  state: Context2DState
+}
+
 export interface RotateAction {
   type: 'ROTATE'
   angle: number
+}
+
+export interface SaveAction {
+  type: 'SAVE'
+  state: Context2DState
 }
 
 export interface ScaleAction {
@@ -146,6 +176,14 @@ export interface StrokeRectAction {
   height: number
 }
 
+export interface StrokeTextAction {
+  type: 'STROKETEXT'
+  text: string
+  x: number
+  y: number
+  maxWidth?: number
+}
+
 export interface TransformAction {
   type: 'TRANSFORM'
   a: number
@@ -160,4 +198,89 @@ export interface TranslateAction {
   type: 'TRANSLATE'
   x: number
   y: number
+}
+
+export interface SetCurrentTransformAction {
+  type: 'SET_CURRENTTRANSFORM'
+  transform: { a: number, b: number, c: number, d: number, e: number, f: number }
+}
+
+export interface SetFillStyleAction {
+  type: 'SET_FILLSTYLE'
+  fillStyle: Context2DState['fillStyle']
+}
+
+export interface SetFontAction {
+  type: 'SET_FONT'
+  font: Context2DState['font']
+}
+
+export interface SetGlobalAlphaAction {
+  type: 'SET_GLOBALALPHA'
+  globalAlpha: number
+}
+
+export interface SetGlobalCompositeOperationAction {
+  type: 'SET_GLOBALCOMPOSITEOPERATION'
+  globalCompositeOperation: Context2DState['globalCompositeOperation']
+}
+
+export interface SetLineCapAction {
+  type: 'SET_LINECAP'
+  lineCap: Context2DState['lineCap']
+}
+
+export interface SetLineDashOffsetAction {
+  type: 'SET_LINEDASHOFFSET'
+  lineDashOffset: Context2DState['lineDashOffset']
+}
+
+export interface SetLineJoinAction {
+  type: 'SET_LINEJOIN'
+  lineJoin: Context2DState['lineJoin']
+}
+
+export interface SetLineWidthAction {
+  type: 'SET_LINEWIDTH'
+  lineWidth: Context2DState['lineWidth']
+}
+
+export interface SetMiterLimitAction {
+  type: 'SET_MITERLIMIT'
+  miterLimit: Context2DState['miterLimit']
+}
+
+export interface SetShadowBlurAction {
+  type: 'SET_SHADOWBLUR'
+  shadowBlur: Context2DState['shadowBlur']
+}
+
+export interface SetShadowColorAction {
+  type: 'SET_SHADOWCOLOR'
+  shadowColor: Context2DState['shadowColor']
+}
+
+export interface SetShadowOffsetXAction {
+  type: 'SET_SHADOWOFFSETX'
+  shadowOffsetX: Context2DState['shadowOffsetX']
+}
+
+export interface SetShadowOffsetYAction {
+  type: 'SET_SHADOWOFFSETY'
+  shadowOffsetY: Context2DState['shadowOffsetY']
+}
+
+export interface SetStrokeStyleAction {
+  type: 'SET_STROKESTYLE'
+  strokeStyle: Context2DState['strokeStyle']
+}
+
+export interface SetTextAlignAction {
+  type: 'SET_TEXTALIGN'
+  textAlign: Context2DState['textAlign']
+}
+
+export interface SetTextBaselineAction {
+  type: 'SET_TEXTBASELINE'
+  textBaseline: Context2DState['textBaseline']
 }
