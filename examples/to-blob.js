@@ -13,6 +13,11 @@ ctx.moveTo(100, 100);
 ctx.lineTo(100, 200)
 ctx.moveTo(200, 200)
 ctx.bezierCurveTo(300, 300, 300, 500, 200 , 700)
+ctx.font = '200px'
+ctx.fillStyle = '#62efff'
+ctx.fillText('Hello Moto', 500, 300)
+ctx.strokeStyle = '#f48fb1'
+ctx.strokeText('From Azure', 800, 700)
 ctx.stroke()
 
 const buffer = canvas.toBlob()

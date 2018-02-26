@@ -840,7 +840,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "rustcanvas"
 version = "0.1.0"
-source = "git+https://github.com/rust-canvas/rust-canvas#0806ef8c3254f1b65caa59d98cf1578ec6c8a659"
+source = "git+https://github.com/rust-canvas/rust-canvas#10001eb6f121f5f5d07f29b63338ae90b1e0a60d"
 dependencies = [
  "app_units 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "azure 0.25.0 (registry+https://github.com/rust-lang/crates.io-index)",

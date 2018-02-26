@@ -7,3 +7,4 @@ native/index.node
 native/artifacts.json
 target
 examples/*.png
+Cargo.lock
