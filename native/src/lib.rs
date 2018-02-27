@@ -8,7 +8,6 @@ mod traits;
 
 use std::ops::Deref;
 
-use cssparser::{RGBA};
 use euclid::{Rect, Size2D, Point2D};
 use neon::mem::{Handle};
 use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, Object, Value, Variant};
@@ -44,7 +43,7 @@ declare_types! {
       Ok(canvas)
     }
 
-    method toBlob(mut call) {
+    method toBuffer(mut call) {
       let actions = call
         .check_argument::<JsArray>(0)
         .expect("Check actions error")
@@ -306,8 +305,11 @@ declare_types! {
               ctx.set_shadow_offset_y(shadow_offset_y)
             },
             "SET_STROKESTYLE" => {
-              let stroke_style = to_str!(call.scope, v, "strokeStyle");
-              // ctx.set_stroke_style(stroke_style)
+              let stroke_style = v.get(call.scope, "strokeStyle").unwrap();
+              match FillOrStrokeStyle::from_handle(stroke_style) {
+                Some(s) => ctx.set_stroke_style(s),
+                None => println!("illegal strokeStyle"),
+              };
             },
             "SET_TEXTALIGN" => {
               let text_align = to_str!(call.scope, v, "textAlign");

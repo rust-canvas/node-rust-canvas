@@ -23,7 +23,7 @@ export class CanvasElement {
     }
   }
 
-  toBlob() {
-    return this.nativeCanvas.toBlob([...this.ctx.actions])
+  toBuffer() {
+    return this.nativeCanvas.toBuffer([...this.ctx.actions])
   }
 }
