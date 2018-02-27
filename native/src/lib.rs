@@ -8,14 +8,14 @@ mod traits;
 
 use std::ops::Deref;
 
-use cssparser::{RGBA};
+use cssparser::{RGBA, Color, Parser, ParserInput};
 use euclid::{Rect, Size2D, Point2D, Transform2D};
 use neon::mem::{Handle};
 use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, Object, Value, Variant};
 use neon::js::binary::{JsBuffer};
 use neon::js::class::{JsClass, Class};
 use neon::vm::{Lock, JsResult, This, FunctionCall};
-use rustcanvas::{CanvasElement, create_canvas, CanvasContextType, FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle};
+use rustcanvas::{CanvasElement, create_canvas, CanvasContextType, FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle, ToAzureStyle};
 
 use traits::*;
 use std::str::FromStr;
@@ -303,7 +303,18 @@ declare_types! {
             },
             "SET_SHADOWCOLOR" => {
               let shadow_color = to_str!(call.scope, v, "shadowColor");
-              // ctx.set_shadow_color(shadow_color);
+              let input = &mut ParserInput::new(&shadow_color);
+              let parser = &mut Parser::new(input);
+              let parse_result = Color::parse(parser);
+              match parse_result {
+                Ok(rgba) => {
+                  match rgba {
+                    Color::RGBA(rgba) => ctx.set_shadow_color(rgba.to_azure_style()),
+                    _ => println!("illegal shadowColor"),
+                  }
+                },
+                Err(e) => println!("illegal shadowColor"),
+              }
             },
             "SET_SHADOWOFFSETX" => {
               let shadow_offset_x = to_f64!(call.scope, v, "shadowOffsetX");
