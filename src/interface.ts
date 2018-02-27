@@ -7,8 +7,8 @@ export type Action = ArcAction | ArcToAction | BeginPathAction | BezierCurveToAc
   ClipAction | ClosePathAction | CreateLinearGradientAction | CreateImageDataAction | CreateRadialGradientAction |
   FillAction | FillRectAction | FillTextAction | LineToAction | MeasureTextAction |
   MoveToAction | PutImageDataAction | QuadraticCurveToAction | RectAction | RestoreAction |
-  RotateAction | SaveAction | ScaleAction | StrokeAction | StrokeRectAction |
-  StrokeTextAction | TransformAction | TranslateAction |
+  RotateAction | SaveAction | ScaleAction | SetLineDashAction | SetTransformAction |
+  StrokeAction | StrokeRectAction | StrokeTextAction | TransformAction | TranslateAction |
   SetCurrentTransformAction | SetFillStyleAction | SetFontAction | SetGlobalAlphaAction | SetGlobalCompositeOperationAction |
   SetLineCapAction | SetLineDashOffsetAction | SetLineJoinAction | SetLineWidthAction | SetMiterLimitAction |
   SetShadowBlurAction | SetShadowColorAction | SetShadowOffsetXAction | SetShadowOffsetYAction | SetStrokeStyleAction |
@@ -162,6 +162,21 @@ export interface ScaleAction {
   type: 'SCALE'
   x: number
   y: number
+}
+
+export interface SetLineDashAction {
+  type: 'SETLINEDASH'
+  segments: number[]
+}
+
+export interface SetTransformAction {
+  type: 'SETTRANSFORM'
+  a: number
+  b: number
+  c: number
+  d: number
+  e: number
+  f: number
 }
 
 export interface StrokeAction {
