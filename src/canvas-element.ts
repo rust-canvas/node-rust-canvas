@@ -24,6 +24,6 @@ export class CanvasElement {
   }
 
   toBlob() {
-    return this.nativeCanvas.toBlob([...this.ctx.actions], [Context2D.defaultState, ...this.ctx.states])
+    return this.nativeCanvas.toBlob([...this.ctx.actions])
   }
 }

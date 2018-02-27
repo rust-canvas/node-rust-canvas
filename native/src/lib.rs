@@ -4,17 +4,20 @@ extern crate euclid;
 extern crate rustcanvas;
 
 #[macro_use] mod macros;
+mod traits;
 
 use std::ops::Deref;
 
 use cssparser::{RGBA};
 use euclid::{Rect, Size2D, Point2D};
 use neon::mem::{Handle};
-use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, Object, Value};
+use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, Object, Value, Variant};
 use neon::js::binary::{JsBuffer};
 use neon::js::class::{JsClass, Class};
 use neon::vm::{Lock, JsResult, This, FunctionCall};
 use rustcanvas::{CanvasElement, create_canvas, CanvasContextType, FillOrStrokeStyle};
+
+use traits::*;
 
 trait CheckArgument<'a> {
   fn check_argument<V: Value>(&mut self, i: i32) -> JsResult<'a, V>;
@@ -31,10 +34,12 @@ declare_types! {
     init(mut call) {
       let width = call
         .check_argument::<JsNumber>(0)
-        ?.value() as i32;
+        .expect("Check width error")
+        .value() as i32;
       let height = call
         .check_argument::<JsNumber>(1)
-        ?.value() as i32;
+        .expect("Check height error")
+        .value() as i32;
       let canvas = create_canvas(width, height, CanvasContextType::CTX2D);
       Ok(canvas)
     }
@@ -42,20 +47,15 @@ declare_types! {
     method toBlob(mut call) {
       let actions = call
         .check_argument::<JsArray>(0)
-        ?.to_vec(call.scope)
-        .unwrap();
-      let states = call
-        .check_argument::<JsArray>(1)
-        ?.to_vec(call.scope)
-        .unwrap();
+        .expect("Check actions error")
+        .to_vec(call.scope)
+        .expect("Unpack actions error");
 
       let mut this = call.arguments.this(call.scope);
       let canvas: &mut CanvasElement = this.grab(|c| c );
       let ctx = &mut canvas.ctx;
-      ctx.set_line_width(10.0);
-      ctx.set_stroke_style(FillOrStrokeStyle::Color(RGBA::new(66, 165, 245, 100)));
       actions.iter()
-        .map(|v| v.check::<JsObject>().unwrap())
+        .map(|v| v.check::<JsObject>().expect("Unpack JsObject Error"))
         .for_each(|v| {
           let action_type = to_str!(call.scope, v, "type");
           match action_type.deref() {
@@ -134,8 +134,11 @@ declare_types! {
               let text = to_str!(call.scope, v, "text");;
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
-              let max_width = to_f32!(call.scope, v, "maxWidth");
-              ctx.fill_text(text, x, y, Some(max_width));
+              let max_width = match v.get(call.scope, "maxWidth").unwrap().variant() {
+                Variant::Number(n) => Some(n.value() as f32),
+                _ => None,
+              };
+              ctx.fill_text(text, x, y, max_width);
             },
             "LINETO" => {
               let x = to_f32!(call.scope, v, "x");
@@ -201,10 +204,13 @@ declare_types! {
             },
             "STROKETEXT" => {
               let text = to_str!(call.scope, v, "text");
-              let x = to_f64!(call.scope, v, "x");
-              let y = to_f64!(call.scope, v, "y");
-              let max_width = to_f64!(call.scope, v, "maxWidth");
-              // todo
+              let x = to_f32!(call.scope, v, "x");
+              let y = to_f32!(call.scope, v, "y");
+              let max_width = match v.get(call.scope, "maxWidth").unwrap().variant() {
+                Variant::Number(n) => Some(n.value() as f32),
+                _ => None,
+              };
+              ctx.stroke_text(text, x, y, None);
             },
             "TRANSFORM" => {
               let a = to_f64!(call.scope, v, "a");
@@ -236,18 +242,15 @@ declare_types! {
               // ctx.set_transform(transform)
             },
             "SET_FILLSTYLE" => {
-              let fill_style = v.get(call.scope, "fillStyle")
-                .unwrap()
-                .check::<JsObject>()
-                .unwrap();
-              // ctx.set_fill_style(fill_style);
+              let fill_style = v.get(call.scope, "fillStyle").unwrap();
+              match FillOrStrokeStyle::from_handle(fill_style) {
+                Some(s) => ctx.set_fill_style(s),
+                None => println!("illegal fillStyle"),
+              };
             },
             "SET_FONT" => {
-              let font = v.get(call.scope, "font")
-                .unwrap()
-                .check::<JsObject>()
-                .unwrap();
-              // ctx.set_font_style(font)
+              let font = to_str!(call.scope, v, "font");
+              ctx.set_font_style(&font);
             },
             "SET_GLOBALALPHA" => {
               let global_alpha = to_f32!(call.scope, v, "globalAlpha");
@@ -256,28 +259,25 @@ declare_types! {
             "SET_GLOBALCOMPOSITEOPERATION" => {
               let global_composite_operation = v.get(call.scope, "globalCompositeOperation")
                 .unwrap()
-                .check::<JsObject>()
+                .check::<JsString>()
                 .unwrap();
               // ctx.set_global_composition(global_composite_operation)
             },
             "SET_LINECAP" => {
               let line_cap = v.get(call.scope, "lineCap")
                 .unwrap()
-                .check::<JsObject>()
+                .check::<JsString>()
                 .unwrap();
               // ctx.set_line_cap(line_cap)
             },
             "SET_LINEDASHOFFSET" => {
-              let line_dash_offset = v.get(call.scope, "lineDashOffset")
-                .unwrap()
-                .check::<JsObject>()
-                .unwrap();
+              let line_dash_offset = to_f32!(call.scope, v, "lineDashOffset");
               // todo
             },
             "SET_LINEJOIN" => {
               let line_join = v.get(call.scope, "lineJoin")
                 .unwrap()
-                .check::<JsObject>()
+                .check::<JsString>()
                 .unwrap();
               // ctx.set_line_join(line_join)
             },
@@ -294,10 +294,7 @@ declare_types! {
               ctx.set_shadow_blur(shadow_blur)
             },
             "SET_SHADOWCOLOR" => {
-              let shadow_color = v.get(call.scope, "shadowColor")
-                .unwrap()
-                .check::<JsObject>()
-                .unwrap();
+              let shadow_color = to_str!(call.scope, v, "shadowColor");
               // ctx.set_shadow_color(shadow_color)
             },
             "SET_SHADOWOFFSETX" => {
@@ -309,33 +306,25 @@ declare_types! {
               ctx.set_shadow_offset_y(shadow_offset_y)
             },
             "SET_STROKESTYLE" => {
-              let stroke_style = v.get(call.scope, "strokeStyle")
-                .unwrap()
-                .check::<JsObject>()
-                .unwrap();
+              let stroke_style = to_str!(call.scope, v, "strokeStyle");
               // ctx.set_stroke_style(stroke_style)
             },
             "SET_TEXTALIGN" => {
-              let text_align = v.get(call.scope, "textAlign")
-                .unwrap()
-                .check::<JsObject>()
-                .unwrap();
+              let text_align = to_str!(call.scope, v, "textAlign");
               // todo
             },
             "SET_TEXTBASELINE" => {
-              let text_baseline = v.get(call.scope, "textBaseline")
-                .unwrap()
-                .check::<JsObject>()
-                .unwrap();
+              let text_baseline = to_str!(call.scope, v, "textBaseline");
               // todo
             },
             _ => println!("{}", action_type),
           };
         });
+
       let canvas_size = Size2D::new(canvas.width as f64, canvas.height as f64);
       let size_i32 = canvas_size.to_i32();
       let buffer = ctx.image_data(Rect::new(Point2D::new(0i32, 0i32), size_i32), canvas_size);
-      let mut js_buffer = JsBuffer::new(call.scope, buffer.len() as u32).unwrap();
+      let mut js_buffer = JsBuffer::new(call.scope, buffer.len() as u32).expect("New JsBuffer Error");
       js_buffer.grab(|mut contents| {
         let slice = contents.as_mut_slice();
         for i in 0..slice.len() {

@@ -229,8 +229,6 @@ export class Context2D {
 
   state: Context2DState = { ...Context2D.defaultState }
 
-  states = [this.state]
-
   actions: Types.Action[] = []
 
   constructor(public canvas: CanvasElement) {
@@ -400,7 +398,6 @@ export class Context2D {
   }
 
   restore() {
-    this.state = this.states.shift()!
     this.actions.push({
       type: 'RESTORE', state: this.state,
     })
@@ -413,8 +410,6 @@ export class Context2D {
   }
 
   save() {
-    this.states.unshift(this.state)
-    this.state = { ...this.state }
     this.actions.push({
       type: 'SAVE', state: this.state,
     })
