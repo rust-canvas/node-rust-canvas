@@ -13,3 +13,7 @@ macro_rules! to_bool {
 macro_rules! to_str {
   ($s:expr, $o:expr, $k:expr) => { $o.get($s, $k).expect("to_str get fail").check::<JsString>().expect("to_str check fail").value() }
 }
+
+macro_rules! to_object {
+  ($s:expr, $o:expr, $k:expr) => { $o.get($s, $k).expect("to_object get fail").check::<JsObject>().expect("to_object check fail") }
+}

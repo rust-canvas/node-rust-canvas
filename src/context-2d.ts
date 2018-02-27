@@ -428,6 +428,9 @@ export class Context2D {
     } else {
       this.dashPattern = [...segments, ...segments]
     }
+    this.actions.push({
+      type: 'SETLINEDASH', segments,
+    })
   }
 
   setTransform(a: number, b: number, c: number, d: number, e: number, f: number) {
@@ -437,6 +440,9 @@ export class Context2D {
     this.state.transformD = d
     this.state.transformE = e
     this.state.transformF = f
+    this.actions.push({
+      type: 'SETTRANSFORM', a, b, c, d, e, f,
+    })
   }
 
   stroke() {

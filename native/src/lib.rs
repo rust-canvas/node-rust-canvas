@@ -8,15 +8,17 @@ mod traits;
 
 use std::ops::Deref;
 
-use euclid::{Rect, Size2D, Point2D};
+use cssparser::{RGBA, Color, Parser, ParserInput};
+use euclid::{Rect, Size2D, Point2D, Transform2D};
 use neon::mem::{Handle};
 use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, Object, Value, Variant};
 use neon::js::binary::{JsBuffer};
 use neon::js::class::{JsClass, Class};
 use neon::vm::{Lock, JsResult, This, FunctionCall};
-use rustcanvas::{CanvasElement, create_canvas, CanvasContextType, FillOrStrokeStyle};
+use rustcanvas::{CanvasElement, create_canvas, CanvasContextType, FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle, ToAzureStyle};
 
 use traits::*;
+use std::str::FromStr;
 
 trait CheckArgument<'a> {
   fn check_argument<V: Value>(&mut self, i: i32) -> JsResult<'a, V>;
@@ -191,6 +193,18 @@ declare_types! {
               let y = to_f32!(call.scope, v, "y");
               // todo
             },
+            "SETLINEDASH" => {
+              // todo
+            },
+            "SETTRANSFORM" => {
+              let a = to_f32!(call.scope, v, "a");
+              let b = to_f32!(call.scope, v, "b");
+              let c = to_f32!(call.scope, v, "c");
+              let d = to_f32!(call.scope, v, "d");
+              let e = to_f32!(call.scope, v, "e");
+              let f = to_f32!(call.scope, v, "f");
+              ctx.set_transform(&Transform2D::row_major(a, b, c, d, e, f))
+            },
             "STROKE" => {
               ctx.stroke();
             },
@@ -209,7 +223,7 @@ declare_types! {
                 Variant::Number(n) => Some(n.value() as f32),
                 _ => None,
               };
-              ctx.stroke_text(text, x, y, None);
+              ctx.stroke_text(text, x, y, max_width);
             },
             "TRANSFORM" => {
               let a = to_f64!(call.scope, v, "a");
@@ -221,24 +235,19 @@ declare_types! {
               // todo
             },
             "TRANSLATE" => {
-              let x = v.get(call.scope, "x")
-                .unwrap()
-                .check::<JsString>()
-                .unwrap()
-                .value();
-              let y = v.get(call.scope, "y")
-                .unwrap()
-                .check::<JsNumber>()
-                .unwrap()
-                .value() as f64;
+              let x = to_str!(call.scope, v, "x");
+              let y = to_f64!(call.scope, v, "y");
               // todo
             },
             "SET_CURRENTTRANSFORM" => {
-              let transform = v.get(call.scope, "transform")
-                .unwrap()
-                .check::<JsObject>()
-                .unwrap();
-              // ctx.set_transform(transform)
+              let transform = to_object!(call.scope, v, "transform");
+              let a = to_f32!(call.scope, transform, "a");
+              let b = to_f32!(call.scope, transform, "b");
+              let c = to_f32!(call.scope, transform, "c");
+              let d = to_f32!(call.scope, transform, "d");
+              let e = to_f32!(call.scope, transform, "e");
+              let f = to_f32!(call.scope, transform, "f");
+              ctx.set_transform(&Transform2D::row_major(a, b, c, d, e, f))
             },
             "SET_FILLSTYLE" => {
               let fill_style = v.get(call.scope, "fillStyle").unwrap();
@@ -256,29 +265,29 @@ declare_types! {
               ctx.set_global_alpha(global_alpha)
             },
             "SET_GLOBALCOMPOSITEOPERATION" => {
-              let global_composite_operation = v.get(call.scope, "globalCompositeOperation")
-                .unwrap()
-                .check::<JsString>()
-                .unwrap();
-              // ctx.set_global_composition(global_composite_operation)
+              let global_composite_operation = to_str!(call.scope, v, "globalCompositeOperation");
+              match CompositionOrBlending::from_str(&global_composite_operation) {
+                Ok(s) => ctx.set_global_composition(s),
+                Err(e) => println!("illegal globalCompositeOperation"),
+              };
             },
             "SET_LINECAP" => {
-              let line_cap = v.get(call.scope, "lineCap")
-                .unwrap()
-                .check::<JsString>()
-                .unwrap();
-              // ctx.set_line_cap(line_cap)
+              let line_cap = to_str!(call.scope, v, "lineCap");
+              match LineCapStyle::from_str(&line_cap) {
+                Ok(s) => ctx.set_line_cap(s),
+                Err(e) => println!("illegal lineCap"),
+              };
             },
             "SET_LINEDASHOFFSET" => {
               let line_dash_offset = to_f32!(call.scope, v, "lineDashOffset");
               // todo
             },
             "SET_LINEJOIN" => {
-              let line_join = v.get(call.scope, "lineJoin")
-                .unwrap()
-                .check::<JsString>()
-                .unwrap();
-              // ctx.set_line_join(line_join)
+              let line_join = to_str!(call.scope, v, "lineJoin");
+              match LineJoinStyle::from_str(&line_join) {
+                Ok(s) => ctx.set_line_join(s),
+                Err(e) => println!("illegal lineJoin"),
+              };
             },
             "SET_LINEWIDTH" => {
               let line_width = to_f32!(call.scope, v, "lineWidth");
@@ -294,7 +303,18 @@ declare_types! {
             },
             "SET_SHADOWCOLOR" => {
               let shadow_color = to_str!(call.scope, v, "shadowColor");
-              // ctx.set_shadow_color(shadow_color)
+              let input = &mut ParserInput::new(&shadow_color);
+              let parser = &mut Parser::new(input);
+              let parse_result = Color::parse(parser);
+              match parse_result {
+                Ok(rgba) => {
+                  match rgba {
+                    Color::RGBA(rgba) => ctx.set_shadow_color(rgba.to_azure_style()),
+                    _ => println!("illegal shadowColor"),
+                  }
+                },
+                Err(e) => println!("illegal shadowColor"),
+              }
             },
             "SET_SHADOWOFFSETX" => {
               let shadow_offset_x = to_f64!(call.scope, v, "shadowOffsetX");
