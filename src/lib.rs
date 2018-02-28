@@ -14,12 +14,11 @@ use std::str::FromStr;
 use cssparser::{Color, Parser, ParserInput};
 use euclid::{Rect, Size2D, Point2D, Transform2D};
 use neon::mem::{Handle};
-use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, Object, Value, Variant};
-use neon::js::binary::{JsBuffer};
+use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, JsUndefined, Object, Value, Variant};
 use neon::js::class::{JsClass, Class};
 use neon::task::Task;
 use neon::vm::{Lock, JsResult, This, FunctionCall};
-use rustcanvas::{CanvasElement, create_canvas, CanvasContextType, FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle};
+use rustcanvas::{CanvasContextType, FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle};
 use rustcanvas::{CanvasMsg, Canvas2dMsg};
 
 use traits::*;
@@ -35,8 +34,13 @@ impl<'a, T: This> CheckArgument<'a> for FunctionCall<'a, T> {
   }
 }
 
+pub struct CanvasRenderer {
+  width: i32,
+  height: i32,
+}
+
 declare_types! {
-  pub class Canvas for CanvasElement {
+  pub class Canvas for CanvasRenderer {
     init(mut call) {
       let width = call
         .check_argument::<JsNumber>(0)
@@ -46,8 +50,7 @@ declare_types! {
         .check_argument::<JsNumber>(1)
         .expect("Check height error")
         .value() as i32;
-      let canvas = create_canvas(width, height, CanvasContextType::CTX2D);
-      Ok(canvas)
+      Ok(CanvasRenderer { width, height })
     }
 
     method toBuffer(mut call) {
@@ -59,23 +62,20 @@ declare_types! {
       let callback = call.check_argument::<JsFunction>(1)
         .expect("Check toBuffer callback error");
       let mut this = call.arguments.this(call.scope);
-      let canvas: &mut CanvasElement = this.grab(|c| c );
-      let renderer = canvas.ctx;
-      let ren = Render::new(renderer.clone());
-      ren.schedule(callback);
-      actions.iter()
-        .map(|v| v.check::<JsObject>().expect("Unpack JsObject Error"))
-        .for_each(|v| {
+      let (width, height) = this.grab(|c| (c.width, c.height));
+      let canvas_actions: Vec<Result<CanvasMsg, ()>> = actions.iter()
+        .map(|v| v.check::<JsObject>().expect("Canvas Action must be JsObject"))
+        .map(|v| {
           let action_type = to_str!(call.scope, v, "type");
           match action_type.deref() {
             "ARC" => {
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::Arc(
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::Arc(
                 Point2D::new(to_f32!(call.scope, v, "x"), to_f32!(call.scope, v, "y")),
                 to_f32!(call.scope, v, "radius"),
                 to_f32!(call.scope, v, "startAngle"),
                 to_f32!(call.scope, v, "endAngle"),
                 to_bool!(call.scope, v, "endAngle")
-              ))).unwrap();
+              )))
             },
             "ARCTO" => {
               let x1 = to_f32!(call.scope, v, "x1");
@@ -83,10 +83,13 @@ declare_types! {
               let x2 = to_f32!(call.scope, v, "x2");
               let y2 = to_f32!(call.scope, v, "y2");
               let radius = to_f32!(call.scope, v, "radius");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::ArcTo(Point2D::new(x1, y1), Point2D::new(x2, y2), radius))).unwrap();
+              Ok(CanvasMsg::Canvas2d(
+                Canvas2dMsg::ArcTo(Point2D::new(x1, y1),
+                Point2D::new(x2, y2),
+                radius)))
             },
             "BEGINPATH" => {
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::BeginPath)).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::BeginPath))
             },
             "BEZIERCURVETO" => {
               let cp1x = to_f32!(call.scope, v, "cp1x");
@@ -95,25 +98,29 @@ declare_types! {
               let cp2y = to_f32!(call.scope, v, "cp2y");
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
-              renderer.send(
-                CanvasMsg::Canvas2d(Canvas2dMsg::BezierCurveTo(Point2D::new(cp1x, cp1y), Point2D::new(cp2x, cp2y), Point2D::new(x, y)))
-              ).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::BezierCurveTo(
+                Point2D::new(cp1x, cp1y),
+                Point2D::new(cp2x, cp2y),
+                Point2D::new(x, y))))
             },
             "CLEARRECT" => {
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
               let width = to_f32!(call.scope, v, "width");
               let height = to_f32!(call.scope, v, "height");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::ClearRect(Rect::new(Point2D::new(x, y), Size2D::new(width, height))))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::ClearRect(
+                Rect::new(Point2D::new(x, y),
+                Size2D::new(width, height)))))
             },
             "CLIP" => {
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::Clip)).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::Clip))
             },
             "CLOSEPATH" => {
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::ClosePath)).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::ClosePath))
             },
             "CREATEIMAGEDATA" => {
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "CREATELINEARGRADIENT" => {
               let x0 = to_f32!(call.scope, v, "x0");
@@ -121,6 +128,7 @@ declare_types! {
               let x1 = to_f32!(call.scope, v, "x1");
               let y1 = to_f32!(call.scope, v, "y1");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "CREATERADIALGRADIENT" => {
               let x0 = to_f32!(call.scope, v, "x0");
@@ -130,6 +138,7 @@ declare_types! {
               let y1 = to_f32!(call.scope, v, "y1");
               let r1 = to_f32!(call.scope, v, "r1");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "DRAWIMAGE" => {
               let data = to_array!(call.scope, v, "data");
@@ -144,23 +153,23 @@ declare_types! {
               let d_width = to_f64!(call.scope, v, "dWidth");
               let d_height = to_f64!(call.scope, v, "dHeight");
               let image_data = data.iter().map(|v| v.check::<JsNumber>().expect("Unpack JsNumber Error").value() as u8).collect();
-              ctx.draw_image(
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::DrawImage(
                 image_data,
                 Size2D::new(width, height),
                 Rect::new(Point2D::new(dx, dy), Size2D::new(d_width, d_height)),
                 Rect::new(Point2D::new(sx, sy), Size2D::new(s_width, s_height)),
                 true
-              )
+              )))
             },
             "FILL" => {
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::Fill)).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::Fill))
             },
             "FILLRECT" => {
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
               let width = to_f32!(call.scope, v, "width");
               let height = to_f32!(call.scope, v, "height");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::FillRect(Rect::new(Point2D::new(x, y), Size2D::new(width, height))))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::FillRect(Rect::new(Point2D::new(x, y), Size2D::new(width, height)))))
             },
             "FILLTEXT" => {
               let text = to_str!(call.scope, v, "text");
@@ -170,21 +179,22 @@ declare_types! {
                 Variant::Number(n) => Some(n.value() as f32),
                 _ => None,
               };
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::FillText(text, x, y, max_width))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::FillText(text, x, y, max_width)))
             },
             "LINETO" => {
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::LineTo(Point2D::new(x, y)))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::LineTo(Point2D::new(x, y))))
             },
             "MEASURETEXT" => {
               let text = to_str!(call.scope, v, "text");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "MOVETO" => {
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::MoveTo(Point2D::new(x, y)))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::MoveTo(Point2D::new(x, y))))
             },
             "PUTIMAGEDATA" => {
               let dx = to_f64!(call.scope, v, "dx");
@@ -194,38 +204,42 @@ declare_types! {
               let dirty_width = to_f64!(call.scope, v, "dirtyWidth");
               let dirty_height = to_f64!(call.scope, v, "dirtyHeight");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "QUADRATICCURVETO" => {
               let cpx = to_f32!(call.scope, v, "cpx");
               let cpy = to_f32!(call.scope, v, "cpy");
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::QuadraticCurveTo(Point2D::new(cpx, cpy), Point2D::new(x, y)))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::QuadraticCurveTo(Point2D::new(cpx, cpy), Point2D::new(x, y))))
             },
             "RECT" => {
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
               let width = to_f32!(call.scope, v, "width");
               let height = to_f32!(call.scope, v, "height");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::Rect(Rect::new(Point2D::new(x, y), Size2D::new(width, height))))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::Rect(Rect::new(Point2D::new(x, y), Size2D::new(width, height)))))
             },
             "RESTORE" => {
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::RestoreContext)).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::RestoreContext))
             },
             "ROTATE" => {
               let angle = to_f32!(call.scope, v, "angle");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "SAVE" => {
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SaveContext)).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SaveContext))
             },
             "SCALE" => {
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "SETLINEDASH" => {
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "SETTRANSFORM" => {
               let a = to_f32!(call.scope, v, "a");
@@ -234,19 +248,19 @@ declare_types! {
               let d = to_f32!(call.scope, v, "d");
               let e = to_f32!(call.scope, v, "e");
               let f = to_f32!(call.scope, v, "f");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetTransform(Transform2D::row_major(a, b, c, d, e, f)))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetTransform(Transform2D::row_major(a, b, c, d, e, f))))
             },
             "STROKE" => {
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::Stroke)).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::Stroke))
             },
             "STROKERECT" => {
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
               let width = to_f32!(call.scope, v, "width");
               let height = to_f32!(call.scope, v, "height");
-              renderer.send(
-                CanvasMsg::Canvas2d(Canvas2dMsg::StrokeRect(Rect::new(Point2D::new(x, y), Size2D::new(width, height))))
-              ).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::StrokeRect(
+                Rect::new(Point2D::new(x, y),
+                Size2D::new(width, height)))))
             },
             "STROKETEXT" => {
               let text = to_str!(call.scope, v, "text");
@@ -256,7 +270,7 @@ declare_types! {
                 Variant::Number(n) => Some(n.value() as f32),
                 _ => None,
               };
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::StrokeText(text, x, y, max_width))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::StrokeText(text, x, y, max_width)))
             },
             "TRANSFORM" => {
               let a = to_f64!(call.scope, v, "a");
@@ -266,11 +280,13 @@ declare_types! {
               let e = to_f64!(call.scope, v, "e");
               let f = to_f64!(call.scope, v, "f");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "TRANSLATE" => {
               let x = to_str!(call.scope, v, "x");
               let y = to_f64!(call.scope, v, "y");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "SET_CURRENTTRANSFORM" => {
               let transform = to_object!(call.scope, v, "transform");
@@ -280,59 +296,60 @@ declare_types! {
               let d = to_f32!(call.scope, transform, "d");
               let e = to_f32!(call.scope, transform, "e");
               let f = to_f32!(call.scope, transform, "f");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetTransform(Transform2D::row_major(a, b, c, d, e, f)))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetTransform(Transform2D::row_major(a, b, c, d, e, f))))
             },
             "SET_FILLSTYLE" => {
               let fill_style = v.get(call.scope, "fillStyle").unwrap();
               match FillOrStrokeStyle::from_handle(fill_style) {
-                Some(s) => renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetFillStyle(s))).unwrap(),
-                None => println!("illegal fillStyle"),
-              };
+                Some(s) => Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetFillStyle(s))),
+                None => panic!("illegal fillStyle"),
+              }
             },
             "SET_FONT" => {
               let font = to_str!(call.scope, v, "font");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetFontStyle(font))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetFontStyle(font)))
             },
             "SET_GLOBALALPHA" => {
               let global_alpha = to_f32!(call.scope, v, "globalAlpha");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetGlobalAlpha(global_alpha))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetGlobalAlpha(global_alpha)))
             },
             "SET_GLOBALCOMPOSITEOPERATION" => {
               let global_composite_operation = to_str!(call.scope, v, "globalCompositeOperation");
               match CompositionOrBlending::from_str(&global_composite_operation) {
-                Ok(s) => renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetGlobalComposition(s))).unwrap(),
-                Err(e) => println!("illegal globalCompositeOperation"),
-              };
+                Ok(s) => Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetGlobalComposition(s))),
+                Err(e) => panic!("illegal globalCompositeOperation"),
+              }
             },
             "SET_LINECAP" => {
               let line_cap = to_str!(call.scope, v, "lineCap");
               match LineCapStyle::from_str(&line_cap) {
-                Ok(s) => renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetLineCap(s))).unwrap(),
-                Err(_) => println!("illegal lineCap"),
-              };
+                Ok(s) => Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetLineCap(s))),
+                Err(_) => panic!("illegal lineCap"),
+              }
             },
             "SET_LINEDASHOFFSET" => {
               let line_dash_offset = to_f32!(call.scope, v, "lineDashOffset");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "SET_LINEJOIN" => {
               let line_join = to_str!(call.scope, v, "lineJoin");
               match LineJoinStyle::from_str(&line_join) {
-                Ok(s) => renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetLineJoin(s))).unwrap(),
-                Err(e) => println!("illegal lineJoin"),
-              };
+                Ok(s) => Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetLineJoin(s))),
+                Err(e) => panic!("illegal lineJoin"),
+              }
             },
             "SET_LINEWIDTH" => {
               let line_width = to_f32!(call.scope, v, "lineWidth");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetLineWidth(line_width))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetLineWidth(line_width)))
             },
             "SET_MITERLIMIT" => {
               let miter_limit = to_f32!(call.scope, v, "miterLimit");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetMiterLimit(miter_limit))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetMiterLimit(miter_limit)))
             },
             "SET_SHADOWBLUR" => {
               let shadow_blur = to_f64!(call.scope, v, "shadowBlur");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetShadowBlur(shadow_blur))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetShadowBlur(shadow_blur)))
             },
             "SET_SHADOWCOLOR" => {
               let shadow_color = to_str!(call.scope, v, "shadowColor");
@@ -343,51 +360,48 @@ declare_types! {
                 Ok(rgba) => {
                   match rgba {
                     Color::RGBA(rgba) =>
-                      renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetShadowColor(rgba))).unwrap(),
-                    _ => println!("illegal shadowColor"),
+                      Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetShadowColor(rgba))),
+                    _ => panic!("illegal shadowColor"),
                   }
                 },
-                Err(_) => println!("illegal shadowColor"),
+                Err(_) => panic!("illegal shadowColor"),
               }
             },
             "SET_SHADOWOFFSETX" => {
               let shadow_offset_x = to_f64!(call.scope, v, "shadowOffsetX");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetShadowOffsetX(shadow_offset_x))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetShadowOffsetX(shadow_offset_x)))
             },
             "SET_SHADOWOFFSETY" => {
               let shadow_offset_y = to_f64!(call.scope, v, "shadowOffsetY");
-              renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetShadowOffsetY(shadow_offset_y))).unwrap();
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetShadowOffsetY(shadow_offset_y)))
             },
             "SET_STROKESTYLE" => {
               let stroke_style = v.get(call.scope, "strokeStyle").unwrap();
               match FillOrStrokeStyle::from_handle(stroke_style) {
-                Some(s) => renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::SetStrokeStyle(s))).unwrap(),
-                None => println!("illegal strokeStyle"),
-              };
+                Some(s) => Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetStrokeStyle(s))),
+                None => panic!("illegal strokeStyle"),
+              }
             },
             "SET_TEXTALIGN" => {
               let text_align = to_str!(call.scope, v, "textAlign");
               // todo
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "SET_TEXTBASELINE" => {
               let text_baseline = to_str!(call.scope, v, "textBaseline");
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
               // todo
             },
-            _ => println!("{}", action_type),
-          };
-        });
-
-      let canvas_size = Size2D::new(canvas.width as f64, canvas.height as f64);
-      let size_i32 = canvas_size.to_i32();
-      let buffer = ctx.image_data(Rect::new(Point2D::new(0i32, 0i32), size_i32), canvas_size);
-      let mut js_buffer = JsBuffer::new(call.scope, buffer.len() as u32).expect("New JsBuffer Error");
-      js_buffer.grab(|mut contents| {
-        let slice = contents.as_mut_slice();
-        for i in 0..slice.len() {
-          slice[i] = buffer[i];
-        }
-      });
-      Ok(js_buffer.as_value(call.scope))
+            _ => {
+              println!("{}", action_type);
+              Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
+            },
+          }
+        })
+        .collect();
+      let ren = Render::new(canvas_actions, width, height);
+      ren.schedule(callback);
+      Ok(JsUndefined::new().as_value(call.scope))
     }
   }
 }
