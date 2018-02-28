@@ -22,16 +22,13 @@ ctx.strokeStyle = '#f48fb1'
 ctx.lineWidth = 4
 ctx.strokeText('From Azure', 1600, 1400)
 
-// const image = new ImageElement(1000, 1000)
-// image.src = resolve(__dirname, './to-blob.png')
-// await ctx.drawImage(image, 10, 10)
-
-const buffer = canvas.toBuffer()
-
-sharp(buffer, {
-  raw: { width: 1920 * 2, height: 1080 * 2, channels: 4 },
-})
-  .resize(1920, 1080)
-  .png({ progressive: true, compressionLevel: 9 })
-  .toFile(join(process.cwd(), 'examples', 'to-blob.png'))
+canvas.toBuffer()
+  .then(buffer =>
+    sharp(buffer, {
+      raw: { width: 1920 * 2, height: 1080 * 2, channels: 4 },
+    })
+      .resize(1920, 1080)
+      .png({ progressive: true, compressionLevel: 9 })
+      .toFile(join(process.cwd(), 'examples', 'to-blob.png'))
+  )
   .catch(e => console.error(e))

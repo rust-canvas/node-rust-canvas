@@ -24,6 +24,13 @@ export class CanvasElement {
   }
 
   toBuffer() {
-    return this.nativeCanvas.toBuffer([...this.ctx.actions])
+    return new Promise<Buffer>((resolve, reject) => {
+      this.nativeCanvas.toBuffer([...this.ctx.actions], (err, val) => {
+        if (err) {
+          return reject(err)
+        }
+        resolve(val)
+      })
+    })
   }
 }
