@@ -2,9 +2,8 @@ node_modules
 *.log
 .DS_Store
 lib
-native/target
-native/index.node
-native/artifacts.json
+index.node
+artifacts.json
 target
 examples/*.png
 Cargo.lock

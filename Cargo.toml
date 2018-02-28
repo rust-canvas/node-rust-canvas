@@ -2,11 +2,9 @@
 name = "node-rust-canvas"
 version = "0.0.1"
 authors = ["LongYinan <lynweklm@gmail.com>"]
-build = "build.rs"
 
 [lib]
 name = "node_rust_canvas"
-crate-type = ["dylib"]
 
 [build-dependencies]
 neon-build = "0.1.22"

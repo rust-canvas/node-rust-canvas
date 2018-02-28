@@ -2,7 +2,6 @@ const fs = require('fs')
 const { join } = require('path')
 const sharp = require("sharp")
 
-const { Canvas } = require('../native')
 const { CanvasElement } = require('../lib/canvas-element')
 
 const canvas = new CanvasElement(1920 * 2, 1080 * 2)

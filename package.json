@@ -5,10 +5,10 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "build": "shx rm -rf lib && tsc -p src/tsconfig.json",
-    "build:native": "RUST_BACKTRACE=1 neon build",
-    "test": "tslint -c tslint.json -p tsconfig.json",
-    "watch": "tsc -p src/tsconfig.json --watch --pretty --diagnostics"
+    "build": "shx rm -rf lib && tsc -p bindings/tsconfig.json",
+    "build:native": "RUST_BACKTRACE=1 NODE_ENV=production node build.js",
+    "test": "tslint -c tslint.json -p bindings/tsconfig.json",
+    "watch": "tsc -p bindings/tsconfig.json --watch --pretty --diagnostics"
   },
   "repository": {
     "type": "git",

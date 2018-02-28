@@ -1,4 +1,4 @@
-import { Canvas } from '../native'
+import { Canvas } from '../index'
 import { Context2D } from './context-2d'
 
 export type CanvasCtxType = '2d' | 'webgl' | 'webgl2' | 'bitmaprenderer'
