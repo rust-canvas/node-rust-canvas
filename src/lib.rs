@@ -113,13 +113,34 @@ declare_types! {
               // todo
             },
             "CREATERADIALGRADIENT" => {
-              let x0 = to_f32!(call.scope, v, "x0");;
+              let x0 = to_f32!(call.scope, v, "x0");
               let y0 = to_f32!(call.scope, v, "y0");
               let r0 = to_f32!(call.scope, v, "r0");
               let x1 = to_f32!(call.scope, v, "x1");
               let y1 = to_f32!(call.scope, v, "y1");
               let r1 = to_f32!(call.scope, v, "r1");
               // todo
+            },
+            "DRAWIMAGE" => {
+              let data = to_array!(call.scope, v, "data");
+              let height = to_f64!(call.scope, v, "height");
+              let width = to_f64!(call.scope, v, "width");
+              let sx = to_f64!(call.scope, v, "sx");
+              let sy = to_f64!(call.scope, v, "sy");
+              let s_width = to_f64!(call.scope, v, "sWidth");
+              let s_height = to_f64!(call.scope, v, "sHeight");
+              let dx = to_f64!(call.scope, v, "dx");
+              let dy = to_f64!(call.scope, v, "dy");
+              let d_width = to_f64!(call.scope, v, "dWidth");
+              let d_height = to_f64!(call.scope, v, "dHeight");
+              let image_data = data.iter().map(|v| v.check::<JsNumber>().expect("Unpack JsNumber Error").value() as u8).collect();
+              ctx.draw_image(
+                image_data,
+                Size2D::new(width, height),
+                Rect::new(Point2D::new(dx, dy), Size2D::new(d_width, d_height)),
+                Rect::new(Point2D::new(sx, sy), Size2D::new(s_width, s_height)),
+                true
+              )
             },
             "FILL" => {
               ctx.fill();
@@ -132,7 +153,7 @@ declare_types! {
               ctx.fill_rect(&Rect::new(Point2D::new(x, y), Size2D::new(width, height)));
             },
             "FILLTEXT" => {
-              let text = to_str!(call.scope, v, "text");;
+              let text = to_str!(call.scope, v, "text");
               let x = to_f32!(call.scope, v, "x");
               let y = to_f32!(call.scope, v, "y");
               let max_width = match v.get(call.scope, "maxWidth").unwrap().variant() {
@@ -157,11 +178,11 @@ declare_types! {
             },
             "PUTIMAGEDATA" => {
               let dx = to_f64!(call.scope, v, "dx");
-              let dy = to_f64!(call.scope, v, "dy");;
-              let dirty_x = to_f64!(call.scope, v, "dirtyX");;
-              let dirty_y = to_f64!(call.scope, v, "dirtyY");;
-              let dirty_width = to_f64!(call.scope, v, "dirtyWidth");;
-              let dirty_height = to_f64!(call.scope, v, "dirtyHeight");;
+              let dy = to_f64!(call.scope, v, "dy");
+              let dirty_x = to_f64!(call.scope, v, "dirtyX");
+              let dirty_y = to_f64!(call.scope, v, "dirtyY");
+              let dirty_width = to_f64!(call.scope, v, "dirtyWidth");
+              let dirty_height = to_f64!(call.scope, v, "dirtyHeight");
               // todo
             },
             "QUADRATICCURVETO" => {

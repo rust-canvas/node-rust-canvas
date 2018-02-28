@@ -1,8 +1,8 @@
 const fs = require('fs')
-const { join } = require('path')
+const { join, resolve } = require('path')
 const sharp = require("sharp")
 
-const { CanvasElement } = require('../lib/canvas-element')
+const { CanvasElement, ImageElement } = require('../lib')
 
 const canvas = new CanvasElement(1920 * 2, 1080 * 2)
 
@@ -13,7 +13,7 @@ ctx.strokeStyle = 'rgb(190,246,122)'
 ctx.moveTo(200, 200)
 ctx.lineTo(200, 400)
 ctx.moveTo(400, 400)
-ctx.bezierCurveTo(600, 600, 600, 1000, 400 , 1400)
+ctx.bezierCurveTo(600, 600, 600, 1000, 400, 1400)
 ctx.stroke()
 ctx.font = '"PingFang TC" 200px'
 ctx.fillStyle = '#62efff'
@@ -21,6 +21,10 @@ ctx.fillText('ARKie 10s 做海报', 1000, 600)
 ctx.strokeStyle = '#f48fb1'
 ctx.lineWidth = 4
 ctx.strokeText('From Azure', 1600, 1400)
+
+// const image = new ImageElement(1000, 1000)
+// image.src = resolve(__dirname, './to-blob.png')
+// await ctx.drawImage(image, 10, 10)
 
 const buffer = canvas.toBuffer()
 

@@ -2,6 +2,7 @@ import { CanvasElement } from './canvas-element'
 import { CanvasGradient } from './canvas-gradient'
 import { CanvasPattern } from './canvas-pattern'
 import { ImageData } from './image-data'
+import { ImageElement } from './image-element'
 import * as Types from './interface'
 
 export type GlobalCompositeOperationType = 'source-over' | 'source-in' | 'source-out' | 'source-atop' |
@@ -33,6 +34,8 @@ export interface Context2DState {
   transformE: number
   transformF: number
 }
+
+export type CanvasImageSource = ImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap
 
 export class Context2D {
   static defaultState: Context2DState = {
@@ -278,7 +281,7 @@ export class Context2D {
   }
 
   createImageData(imageData: ImageData): ImageData
-  createImageData(widht: number, height: number): ImageData
+  createImageData(width: number, height: number): ImageData
   createImageData(widthOrImageData: number | ImageData, height?: number): ImageData {
     if (!widthOrImageData || !height) {
       throw new RangeError('NOT_SUPPORTED_ERR')
@@ -287,7 +290,7 @@ export class Context2D {
     if (typeof widthOrImageData === 'number') {
       imageData = new ImageData(widthOrImageData, height!)
     } else {
-      imageData = widthOrImageData.clone()
+      imageData = new ImageData(widthOrImageData.data, widthOrImageData.width, widthOrImageData.height)
     }
     this.actions.push({
       type: 'CREATEIMAGEDATA',
@@ -320,8 +323,46 @@ export class Context2D {
     console.warn('drawFocusIfNeeded is unsupported now')
   }
 
-  drawImage() {
-    console.warn('drawImage is unsupported now')
+  async drawImage(
+    image: CanvasImageSource,
+    dxOrSx: number, dyOrSy: number, dWidthOrSWidth?: number, dHeightOrsHeight?: number,
+    dx?: number, dy?: number, dWidth?: number, dHeight?: number): Promise<void> {
+    let imageData: ImageData
+    if (image instanceof ImageElement) {
+      imageData = await (image as ImageElement).toImageData()
+    } else {
+      console.warn('drawImage for non-ImageElement is unsupported now')
+      return
+    }
+    let sx: number | undefined
+    let sy: number | undefined
+    let sWidth: number | undefined
+    let sHeight: number | undefined
+    if (typeof dx === 'number' && typeof dy === 'number' && typeof dWidth === 'number' && typeof dHeight === 'number') {
+      sx = dxOrSx
+      sy = dyOrSy
+      sWidth = dWidthOrSWidth
+      sHeight = dHeightOrsHeight
+    } else {
+      dx = dxOrSx
+      dy = dyOrSy
+      dWidth = dWidthOrSWidth
+      dHeight = dHeightOrsHeight
+    }
+    this.actions.push({
+      type: 'DRAWIMAGE',
+      data: Array.from(imageData.data),
+      width: imageData.width,
+      height: imageData.height,
+      dx,
+      dy,
+      dWidth: dWidth || imageData.width,
+      dHeight: dHeight || imageData.height,
+      sx: sx || 0,
+      sy: sy || 0,
+      sWidth: sWidth || dWidth || imageData.width,
+      sHeight: sHeight || dHeight || imageData.height,
+    })
   }
 
   fill(fillRule: Types.FillRule) {
