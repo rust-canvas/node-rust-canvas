@@ -5,6 +5,7 @@ authors = ["LongYinan <lynweklm@gmail.com>"]
 
 [lib]
 name = "node_rust_canvas"
+crate-type = ["dylib", "cdylib"]
 
 [build-dependencies]
 neon-build = "0.1.22"

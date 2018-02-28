@@ -5,9 +5,7 @@ const { copyFileSync } = require('fs')
 
 const platform = os.platform()
 
-const crateType = platform === 'darwin' ? 'dylib' : 'cdylib'
-
-const args = ['--', '-C', 'link-args=-Wl,-undefined,dynamic_lookup', `--crate-type=${ crateType }`]
+const args = ['--', '-C', 'link-args=-Wl,-undefined,dynamic_lookup']
 
 let env = 'debug'
 
