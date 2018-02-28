@@ -5,6 +5,7 @@ export type FillRule = 'nonzero' | 'evenodd'
 
 export type Action = ArcAction | ArcToAction | BeginPathAction | BezierCurveToAction | ClearRectAction |
   ClipAction | ClosePathAction | CreateLinearGradientAction | CreateImageDataAction | CreateRadialGradientAction |
+  DrawImageAction |
   FillAction | FillRectAction | FillTextAction | LineToAction | MeasureTextAction |
   MoveToAction | PutImageDataAction | QuadraticCurveToAction | RectAction | RestoreAction |
   RotateAction | SaveAction | ScaleAction | SetLineDashAction | SetTransformAction |
@@ -77,6 +78,21 @@ export interface CreateRadialGradientAction {
   y1: number
   r1: number
   gradient: CanvasGradient
+}
+
+export interface DrawImageAction {
+  type: 'DRAWIMAGE'
+  data: number[]
+  height: number
+  width: number
+  sx: number
+  sy: number
+  sWidth: number
+  sHeight: number
+  dx: number
+  dy: number
+  dWidth: number
+  dHeight: number
 }
 
 export interface FillAction {

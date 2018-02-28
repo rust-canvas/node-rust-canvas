@@ -17,3 +17,7 @@ macro_rules! to_str {
 macro_rules! to_object {
   ($s:expr, $o:expr, $k:expr) => { $o.get($s, $k).expect("to_object get fail").check::<JsObject>().expect("to_object check fail") }
 }
+
+macro_rules! to_array {
+  ($s:expr, $o:expr, $k:expr) => { $o.get($s, $k).expect("to_array get fail").check::<JsArray>().expect("to_array check fail").to_vec($s).unwrap() }
+}
