@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/rust-canvas/node-rust-canvas#readme",
   "devDependencies": {
+    "@types/image-size": "^0.0.29",
     "@types/node": "^9.4.6",
     "canvas": "^1.6.9",
     "lodash": "^4.17.5",
@@ -40,6 +41,7 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "image-size": "^0.6.2"
   }
 }

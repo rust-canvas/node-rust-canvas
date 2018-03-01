@@ -33,4 +33,9 @@ export class CanvasElement {
       })
     })
   }
+
+  toDataURL() {
+    console.warn('not implement')
+    return ''
+  }
 }
