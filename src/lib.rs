@@ -284,7 +284,7 @@ declare_types! {
               Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
             },
             "TRANSLATE" => {
-              let x = to_str!(call.scope, v, "x");
+              let x = to_f64!(call.scope, v, "x");
               let y = to_f64!(call.scope, v, "y");
               // todo
               Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
