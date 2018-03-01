@@ -2,6 +2,7 @@ extern crate cssparser;
 extern crate euclid;
 extern crate ipc_channel;
 #[macro_use] extern crate neon;
+extern crate neon_runtime;
 extern crate rustcanvas;
 
 #[macro_use] mod macros;

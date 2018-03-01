@@ -1,10 +1,15 @@
+use std::os::raw::{c_void};
+
 use euclid::{Rect, Point2D, Size2D};
-use ipc_channel::ipc::{IpcSender, channel};
+use ipc_channel::ipc::{channel};
+use neon::mem::{Managed};
+use neon::js::{Value};
 use neon::js::binary::{JsBuffer};
 use neon::scope::{Scope};
 use neon::task::{Task};
 use neon::vm::{JsResult};
 use neon::vm::Lock;
+use neon_runtime::raw::{Local};
 use rustcanvas::{CanvasMsg, Canvas2dMsg, create_canvas, CanvasContextType};
 
 pub struct Render {
@@ -51,21 +56,12 @@ impl Task for Render {
     scope: &'a mut T,
     result: Result<Self::Output, Self::Error>) -> JsResult<Self::JsEvent> {
       match result {
-        Ok(o) => {
-          let len = o.len();
-          let buf = JsBuffer::new(scope, len as u32);
-          match buf {
-            Ok(mut b) => {
-              b.grab(|mut contents| {
-                let slice = contents.as_mut_slice();
-                for i in 0..slice.len() {
-                  slice[i] = o[i];
-                }
-              });
-              Ok(b)
-            },
-            Err(e) => panic!(format!("{:?}", e)),
-          }
+        Ok(mut o) => {
+          let raw_buf = o.as_mut_ptr();
+          let js_buffer = JsBuffer::new(scope, o.len() as u32).unwrap();
+          let mut local = js_buffer.to_raw();
+          local.handle = raw_buf as *mut c_void;
+          Ok(js_buffer)
         },
         Err(e) => panic!(format!("{:?}", e)),
       }
