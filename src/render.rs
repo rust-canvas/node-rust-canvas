@@ -1,15 +1,13 @@
 use std::os::raw::{c_void};
+use std::sync::mpsc::{channel};
 
 use euclid::{Rect, Point2D, Size2D};
-use ipc_channel::ipc::{channel};
+use image::{ImageBuffer, ImageRgba8, ImageFormat};
 use neon::mem::{Managed};
-use neon::js::{Value};
 use neon::js::binary::{JsBuffer};
 use neon::scope::{Scope};
 use neon::task::{Task};
 use neon::vm::{JsResult};
-use neon::vm::Lock;
-use neon_runtime::raw::{Local};
 use rustcanvas::{CanvasMsg, Canvas2dMsg, create_canvas, CanvasContextType};
 
 pub struct Render {
@@ -42,7 +40,7 @@ impl Task for Render {
     }
     let canvas_size = Size2D::new(width as f64, height as f64);
     let size_i32 = canvas_size.to_i32();
-    let (sender, reciver) = channel().unwrap();
+    let (sender, reciver) = channel();
     renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::GetImageData(
       Rect::new(Point2D::new(0i32, 0i32), size_i32),
       canvas_size,
@@ -55,11 +53,19 @@ impl Task for Render {
     self,
     scope: &'a mut T,
     result: Result<Self::Output, Self::Error>) -> JsResult<Self::JsEvent> {
+      let width = self.width as u32;
+      let height = self.height as u32;
       match result {
-        Ok(mut o) => {
-          let raw_buf = o.as_mut_ptr();
-          let js_buffer = JsBuffer::new(scope, o.len() as u32).unwrap();
+        Ok(o) => {
+          let mut dist = vec![];
+          {
+            let png_buffer = ImageBuffer::from_raw(width, height, o).unwrap();
+            let dynamic_image = ImageRgba8(png_buffer);
+            dynamic_image.save(&mut dist, ImageFormat::PNG).unwrap();
+          };
+          let js_buffer = JsBuffer::new(scope, dist.len() as u32).unwrap();
           let mut local = js_buffer.to_raw();
+          let raw_buf = dist.as_mut_ptr();
           local.handle = raw_buf as *mut c_void;
           Ok(js_buffer)
         },

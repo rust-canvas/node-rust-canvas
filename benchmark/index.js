@@ -15,7 +15,7 @@ reddir.sync(join(process.cwd(), 'benchmark', 'fixtures'))
   .forEach(async file => {
     const func = require(`./fixtures/${ file }`)
     const startCario = microtime.now()
-    await Promise.all(range(100).map(() => {
+    await Promise.all(range(1).map(() => {
       return func(cario)
     }))
     const carioTime = microtime.now() - startCario
@@ -23,7 +23,7 @@ reddir.sync(join(process.cwd(), 'benchmark', 'fixtures'))
     await sleep(5000)
 
     const startSkia = microtime.now()
-    await Promise.all(range(100).map(() => {
+    await Promise.all(range(1).map(() => {
       return func(skia)
     }))
     const skiaTime = microtime.now() - startSkia

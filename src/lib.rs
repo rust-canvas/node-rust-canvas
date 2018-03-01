@@ -1,6 +1,6 @@
 extern crate cssparser;
 extern crate euclid;
-extern crate ipc_channel;
+extern crate image;
 #[macro_use] extern crate neon;
 extern crate neon_runtime;
 extern crate rustcanvas;
@@ -19,7 +19,7 @@ use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, JsU
 use neon::js::class::{JsClass, Class};
 use neon::task::Task;
 use neon::vm::{Lock, JsResult, This, FunctionCall};
-use rustcanvas::{CanvasContextType, FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle};
+use rustcanvas::{FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle};
 use rustcanvas::{CanvasMsg, Canvas2dMsg};
 
 use traits::*;
@@ -337,7 +337,7 @@ declare_types! {
               let line_join = to_str!(call.scope, v, "lineJoin");
               match LineJoinStyle::from_str(&line_join) {
                 Ok(s) => Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SetLineJoin(s))),
-                Err(e) => panic!("illegal lineJoin"),
+                Err(_) => panic!("illegal lineJoin"),
               }
             },
             "SET_LINEWIDTH" => {
