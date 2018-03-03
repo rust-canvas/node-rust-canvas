@@ -55,10 +55,10 @@ export class Context2D {
     strokeStyle: '#000',
     textAlign: 'start',
     textBaseline: 'alphabetic',
-    transformA: 0,
+    transformA: 1,
     transformB: 0,
     transformC: 0,
-    transformD: 0,
+    transformD: 1,
     transformE: 0,
     transformF: 0,
   }
@@ -445,9 +445,9 @@ export class Context2D {
   }
 
   rotate(angle: number) {
-    this.actions.push({
-      type: 'ROTATE', angle,
-    })
+    const sin = Math.sin(angle)
+    const cos = Math.cos(angle)
+    this.transform(cos, sin, -sin, cos, 0, 0)
   }
 
   save() {
@@ -457,9 +457,7 @@ export class Context2D {
   }
 
   scale(x: number, y: number) {
-    this.actions.push({
-      type: 'SCALE', x, y,
-    })
+    this.transform(x, 0, 0, y, 0, 0)
   }
 
   setLineDash(segments: number[]) {
@@ -505,14 +503,18 @@ export class Context2D {
   }
 
   transform(a: number, b: number, c: number, d: number, e: number, f: number) {
+    a *= this.state.transformA
+    b += this.state.transformB
+    c += this.state.transformC
+    d *= this.state.transformD
+    e += this.state.transformE
+    f += this.state.transformF
     this.actions.push({
-      type: 'TRANSFORM', a, b, c, d, e, f,
+      type: 'SETTRANSFORM', a, b, c, d, e, f,
     })
   }
 
   translate(x: number, y: number) {
-    this.actions.push({
-      type: 'TRANSLATE', x, y
-    })
+    this.transform(1, 0, 0, 1, x, y)
   }
 }

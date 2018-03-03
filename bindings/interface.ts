@@ -8,8 +8,8 @@ export type Action = ArcAction | ArcToAction | BeginPathAction | BezierCurveToAc
   DrawImageAction |
   FillAction | FillRectAction | FillTextAction | LineToAction | MeasureTextAction |
   MoveToAction | PutImageDataAction | QuadraticCurveToAction | RectAction | RestoreAction |
-  RotateAction | SaveAction | ScaleAction | SetLineDashAction | SetTransformAction |
-  StrokeAction | StrokeRectAction | StrokeTextAction | TransformAction | TranslateAction |
+  SaveAction | SetLineDashAction | SetTransformAction |
+  StrokeAction | StrokeRectAction | StrokeTextAction |
   SetCurrentTransformAction | SetFillStyleAction | SetFontAction | SetGlobalAlphaAction | SetGlobalCompositeOperationAction |
   SetLineCapAction | SetLineDashOffsetAction | SetLineJoinAction | SetLineWidthAction | SetMiterLimitAction |
   SetShadowBlurAction | SetShadowColorAction | SetShadowOffsetXAction | SetShadowOffsetYAction | SetStrokeStyleAction |
@@ -164,20 +164,9 @@ export interface RestoreAction {
   state: Context2DState
 }
 
-export interface RotateAction {
-  type: 'ROTATE'
-  angle: number
-}
-
 export interface SaveAction {
   type: 'SAVE'
   state: Context2DState
-}
-
-export interface ScaleAction {
-  type: 'SCALE'
-  x: number
-  y: number
 }
 
 export interface SetLineDashAction {
@@ -213,22 +202,6 @@ export interface StrokeTextAction {
   x: number
   y: number
   maxWidth?: number
-}
-
-export interface TransformAction {
-  type: 'TRANSFORM'
-  a: number
-  b: number
-  c: number
-  d: number
-  e: number
-  f: number
-}
-
-export interface TranslateAction {
-  type: 'TRANSLATE'
-  x: number
-  y: number
 }
 
 export interface SetCurrentTransformAction {

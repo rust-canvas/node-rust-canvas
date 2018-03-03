@@ -205,19 +205,8 @@ macro_rules! collect_actions {
           "RESTORE" => {
             Ok(CanvasMsg::Canvas2d(Canvas2dMsg::RestoreContext))
           },
-          "ROTATE" => {
-            let angle = to_f32!($c.scope, v, "angle");
-            // todo
-            Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
-          },
           "SAVE" => {
             Ok(CanvasMsg::Canvas2d(Canvas2dMsg::SaveContext))
-          },
-          "SCALE" => {
-            let x = to_f32!($c.scope, v, "x");
-            let y = to_f32!($c.scope, v, "y");
-            // todo
-            Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
           },
           "SETLINEDASH" => {
             // todo
@@ -253,22 +242,6 @@ macro_rules! collect_actions {
               _ => None,
             };
             Ok(CanvasMsg::Canvas2d(Canvas2dMsg::StrokeText(text, x, y, max_width)))
-          },
-          "TRANSFORM" => {
-            let a = to_f64!($c.scope, v, "a");
-            let b = to_f64!($c.scope, v, "b");
-            let c = to_f64!($c.scope, v, "c");
-            let d = to_f64!($c.scope, v, "d");
-            let e = to_f64!($c.scope, v, "e");
-            let f = to_f64!($c.scope, v, "f");
-            // todo
-            Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
-          },
-          "TRANSLATE" => {
-            let x = to_f64!($c.scope, v, "x");
-            let y = to_f64!($c.scope, v, "y");
-            // todo
-            Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
           },
           "SET_CURRENTTRANSFORM" => {
             let transform = to_object!($c.scope, v, "transform");
