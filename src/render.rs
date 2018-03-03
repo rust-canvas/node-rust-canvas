@@ -1,14 +1,13 @@
-use std::os::raw::{c_void};
 use std::sync::mpsc::{channel};
 
 use euclid::{Rect, Point2D, Size2D};
-use image::{ImageBuffer, ImageRgba8, ImageFormat};
-use neon::mem::{Managed};
 use neon::js::binary::{JsBuffer};
 use neon::scope::{Scope};
 use neon::task::{Task};
 use neon::vm::{JsResult};
 use rustcanvas::{CanvasMsg, Canvas2dMsg, create_canvas, CanvasContextType};
+
+use super::image_buffer::{image_buffer};
 
 pub struct Render {
   actions: Vec<Result<CanvasMsg, ()>>,
@@ -57,17 +56,8 @@ impl Task for Render {
       let height = self.height as u32;
       match result {
         Ok(o) => {
-          let mut dist = vec![];
-          {
-            let png_buffer = ImageBuffer::from_raw(width, height, o).unwrap();
-            let dynamic_image = ImageRgba8(png_buffer);
-            dynamic_image.save(&mut dist, ImageFormat::PNG).unwrap();
-          };
-          let js_buffer = JsBuffer::new(scope, dist.len() as u32).unwrap();
-          let mut local = js_buffer.to_raw();
-          let raw_buf = dist.as_mut_ptr();
-          local.handle = raw_buf as *mut c_void;
-          Ok(js_buffer)
+          image_buffer(o, scope, width, height)
+            .and_then(|b| b.check::<JsBuffer>())
         },
         Err(e) => panic!(format!("{:?}", e)),
       }

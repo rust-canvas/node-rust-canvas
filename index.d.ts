@@ -5,4 +5,5 @@ export class Canvas {
   constructor(width: number, height: number)
 
   toBuffer(actions: Array<Action>, cb: (err: Error, value: Buffer) => any): Buffer
+  toDataURL(actions: Array<Action>): Buffer
 }

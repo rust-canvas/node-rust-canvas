@@ -25,7 +25,7 @@ export class CanvasElement {
 
   toBuffer() {
     return new Promise<Buffer>((resolve, reject) => {
-      this.nativeCanvas.toBuffer([...this.ctx.actions], (err, val) => {
+      this.nativeCanvas.toBuffer(this.ctx.actions, (err, val) => {
         if (err) {
           return reject(err)
         }
@@ -35,7 +35,7 @@ export class CanvasElement {
   }
 
   toDataURL() {
-    console.warn('not implement')
-    return ''
+    return this.nativeCanvas.toDataURL(this.ctx.actions)
+      .toString('base64')
   }
 }

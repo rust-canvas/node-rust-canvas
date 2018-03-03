@@ -13,5 +13,5 @@ module.exports = function simple ({ ctx, canvas }) {
   ctx.lineWidth = 4
   ctx.strokeText('From Azure', 1600, 1400)
 
-  return canvas.toBuffer()
+  return canvas.toDataURL()
 }
