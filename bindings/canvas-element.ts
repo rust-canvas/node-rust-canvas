@@ -34,7 +34,7 @@ export class CanvasElement {
     })
   }
 
-  toDataURL(type?: string, encoderOptions?: number) {
+  toDataURL(type?: string) {
     if (!type) {
       type = 'image/png'
     }
