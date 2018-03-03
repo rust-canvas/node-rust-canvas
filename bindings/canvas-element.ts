@@ -34,8 +34,12 @@ export class CanvasElement {
     })
   }
 
-  toDataURL() {
-    return this.nativeCanvas.toDataURL(this.ctx.actions)
+  toDataURL(type?: string, encoderOptions?: number) {
+    if (!type) {
+      type = 'image/png'
+    }
+    const base64 = this.nativeCanvas.toDataURL(this.ctx.actions)
       .toString('base64')
+    return `data:${type};base64,${base64}`
   }
 }
