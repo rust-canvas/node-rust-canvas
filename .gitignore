@@ -7,4 +7,5 @@ artifacts.json
 target
 examples/*.png
 examples/*.jpg
+examples/*.jpeg
 Cargo.lock

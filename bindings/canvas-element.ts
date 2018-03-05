@@ -44,11 +44,15 @@ export class CanvasElement {
     let buffer = await this.toBuffer('image/png', encoderOptions)
     if (type === 'image/jpeg') {
       const rgba = new Buffer(UPNG.toRGBA8(UPNG.decode(buffer.buffer))[0])
+      let quality = encoderOptions === undefined ? 92 : encoderOptions * 100.0
+      if (typeof quality !== 'number' || isNaN(quality) || quality < 0 || quality > 100) {
+        quality = 92
+      }
       const jpegImageData = jpeg.encode({
         data: rgba,
         width: this.width,
         height: this.height,
-      }, encoderOptions === undefined ? 92 : encoderOptions / 100.0)
+      }, quality)
       buffer = jpegImageData.data
     }
     const base64 = buffer.toString('base64')
