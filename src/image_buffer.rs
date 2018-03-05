@@ -1,5 +1,4 @@
 use image::{ImageBuffer, ImageRgba8, ImageFormat};
-use neon::mem::{Managed};
 use neon::js::{JsValue, Value};
 use neon::js::binary::{JsBuffer};
 use neon::scope::{Scope};

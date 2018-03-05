@@ -11,8 +11,9 @@ mod traits;
 mod render;
 
 use std::ops::Deref;
-use std::sync::mpsc::{channel};
 use std::str::FromStr;
+use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{channel, Sender};
 
 use cssparser::{Color, Parser, ParserInput};
 use euclid::{Rect, Size2D, Point2D, Transform2D};
@@ -22,7 +23,7 @@ use neon::js::class::{JsClass, Class};
 use neon::task::Task;
 use neon::vm::{Lock, JsResult, This, FunctionCall};
 use rustcanvas::{FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle};
-use rustcanvas::{CanvasContextType, CanvasMsg, Canvas2dMsg, create_canvas};
+use rustcanvas::{CanvasMsg, Canvas2dMsg, Context2d};
 
 use traits::*;
 use render::Render;
@@ -31,17 +32,26 @@ use image::{ImageFormat};
 
 trait CheckArgument<'a> {
   fn check_argument<V: Value>(&mut self, i: i32) -> JsResult<'a, V>;
+  fn variant_argument(&mut self, i: i32) -> Option<Variant>;
 }
 
 impl<'a, T: This> CheckArgument<'a> for FunctionCall<'a, T> {
   fn check_argument<V: Value>(&mut self, i: i32) -> JsResult<'a, V> {
     self.arguments.require(self.scope, i)?.check::<V>()
   }
+
+  fn variant_argument(&mut self, i: i32) -> Option<Variant> {
+    match self.arguments.get(self.scope, i) {
+      None => None,
+      Some(value) => Some(value.variant())
+    }
+  }
 }
 
 pub struct CanvasRenderer {
   width: i32,
   height: i32,
+  renderer: Arc<Mutex<Sender<CanvasMsg>>>,
 }
 
 macro_rules! collect_actions {
@@ -354,7 +364,6 @@ macro_rules! collect_actions {
           },
         }
       })
-      .collect()
   )
 }
 
@@ -369,7 +378,9 @@ declare_types! {
         .check_argument::<JsNumber>(1)
         .expect("Check height error")
         .value() as i32;
-      Ok(CanvasRenderer { width, height })
+      let renderer = Context2d::start(Size2D::new(width, height));
+      let renderer = Arc::new(Mutex::new(renderer));
+      Ok(CanvasRenderer { width, height, renderer })
     }
 
     method toBuffer(mut call) {
@@ -389,15 +400,52 @@ declare_types! {
       let callback = call.check_argument::<JsFunction>(3)
         .expect("Check toBuffer callback error");
       let mut this = call.arguments.this(call.scope);
-      let (width, height) = this.grab(|c| (c.width, c.height));
-      let canvas_actions: Vec<Result<CanvasMsg, ()>> = collect_actions!(call, actions);
+      let (width, height, renderer) = this.grab(|c| (c.width, c.height, c.renderer.clone()));
+      let canvas_actions = collect_actions!(call, actions).collect();
       let format = match format_type.as_ref() {
         "image/jpeg" => ImageFormat::JPEG,
         _ => ImageFormat::PNG,
       };
-      let ren = Render::new(canvas_actions, width, height, format, encoder_options);
+      let ren = Render::new(renderer, canvas_actions, width, height, format, encoder_options);
       ren.schedule(callback);
-      Ok(JsUndefined::new().as_value(call.scope))
+      return Ok(JsUndefined::new().as_value(call.scope))
+    }
+
+    method toBufferSync(mut call) {
+      let actions = call
+        .check_argument::<JsArray>(0)
+        .expect("Check actions error")
+        .to_vec(call.scope)
+        .expect("Unpack actions error");
+      let format_type = call
+        .check_argument::<JsString>(1)
+        .expect("Check type error")
+        .value();
+      let encoder_options = call
+        .check_argument::<JsNumber>(2)
+        .expect("Check encoderOptions error")
+        .value() as f32;
+      let mut this = call.arguments.this(call.scope);
+      let (width, height, renderer) = this.grab(|c| (c.width, c.height, c.renderer.clone()));
+      let format = match format_type.as_ref() {
+        "image/jpeg" => ImageFormat::JPEG,
+        _ => ImageFormat::PNG,
+      };
+      let renderer = renderer.lock().unwrap();
+      collect_actions!(call, actions).for_each(|action: Result<CanvasMsg, ()>| match action {
+        Ok(a) => renderer.send(a.clone()).unwrap(),
+        _ => { },
+      });
+      let canvas_size = Size2D::new(width as f64, height as f64);
+      let size_i32 = canvas_size.to_i32();
+      let (sender, reciver) = channel();
+      renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::GetImageData(
+        Rect::new(Point2D::new(0i32, 0i32), size_i32),
+        canvas_size,
+        sender,
+      ))).unwrap();
+      let b = reciver.recv().unwrap();
+      image_buffer(b, call.scope, width as u32, height as u32, format, encoder_options)
     }
   }
 }

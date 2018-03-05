@@ -13,7 +13,7 @@ neon-build = "0.1.22"
 [dependencies]
 cssparser = { version = "0.23", features = ["serde"] }
 euclid = { version = "0.17", features = ["serde"] }
-image = "*"
+image = "0.18"
 neon = "^0.1"
 neon-runtime = "^0.1"
-rustcanvas = { git = "https://github.com/rust-canvas/rust-canvas", branch = "gpu" }
+rustcanvas = { git = "https://github.com/rust-canvas/rust-canvas" }

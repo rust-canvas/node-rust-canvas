@@ -28,12 +28,12 @@ export class CanvasElement {
     }
   }
 
-  toBuffer(type?: string, encoderOptions?: number) {
+  toBuffer(type = 'image/png', encoderOptions = 0) {
     return new Promise<Buffer>((resolve, reject) => {
       this.nativeCanvas.toBuffer(
         this.ctx.actions,
-        type || 'image/png',
-        encoderOptions === undefined ? 0 : encoderOptions,
+        type,
+        encoderOptions,
         (err, val) => {
           if (err) {
             return reject(err)
@@ -43,8 +43,12 @@ export class CanvasElement {
     })
   }
 
-  async toDataURL(type?: string, encoderOptions?: number) {
-    let buffer = await this.toBuffer('image/png', encoderOptions)
+  toBufferSync(type = 'image/png', encoderOptions = 0) {
+    return this.nativeCanvas.toBufferSync(this.ctx.actions, type, encoderOptions)
+  }
+
+  toDataURL(type?: string, encoderOptions = 92) {
+    let buffer = this.toBufferSync('image/png', encoderOptions)
     if (type === 'image/jpeg') {
       const rgba = new Buffer(UPNG.toRGBA8(UPNG.decode(buffer.buffer))[0])
       let quality = encoderOptions === undefined ? 92 : encoderOptions * 100.0

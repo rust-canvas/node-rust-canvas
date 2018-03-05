@@ -1,11 +1,12 @@
-use std::sync::mpsc::{channel};
+use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{channel, Sender};
 
 use euclid::{Rect, Point2D, Size2D};
 use neon::js::binary::{JsBuffer};
 use neon::scope::{Scope};
 use neon::task::{Task};
 use neon::vm::{JsResult};
-use rustcanvas::{CanvasMsg, Canvas2dMsg, create_canvas, CanvasContextType};
+use rustcanvas::{CanvasMsg, Canvas2dMsg};
 
 use super::image_buffer::{image_buffer};
 use image::{ImageFormat};
@@ -16,11 +17,12 @@ pub struct Render {
   height: i32,
   format_type: ImageFormat,
   encoder_options: f32,
+  renderer: Arc<Mutex<Sender<CanvasMsg>>>,
 }
 
 impl Render {
-  pub fn new(actions: Vec<Result<CanvasMsg, ()>>, width: i32, height: i32, format_type: ImageFormat, encoder_options: f32) -> Render {
-    Render { actions, width, height, format_type, encoder_options }
+  pub fn new(renderer: Arc<Mutex<Sender<CanvasMsg>>>, actions: Vec<Result<CanvasMsg, ()>>, width: i32, height: i32, format_type: ImageFormat, encoder_options: f32) -> Render {
+    Render { renderer, actions, width, height, format_type, encoder_options }
   }
 }
 
@@ -32,8 +34,8 @@ impl Task for Render {
   fn perform(&self) -> Result<Self::Output, Self::Error> {
     let width = self.width;
     let height = self.height;
-    let canvas = create_canvas(width, height, CanvasContextType::CTX2D);
-    let renderer = canvas.ctx;
+    let renderer = self.renderer.clone();
+    let renderer = renderer.lock().unwrap();
     for action in &self.actions {
       match action {
         &Ok(ref a) => renderer.send(a.clone()).unwrap(),
