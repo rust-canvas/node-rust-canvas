@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "declaration": true,
     "sourceMap": true,
     "strict": true,

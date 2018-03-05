@@ -17,6 +17,9 @@ export class CanvasElement {
   getContext(ctxType: CanvasCtxType) {
     switch (ctxType) {
       case '2d':
+        if (this.ctx) {
+          return this.ctx
+        }
         const ctx = new Context2D(this)
         this.ctx = ctx
         return ctx
