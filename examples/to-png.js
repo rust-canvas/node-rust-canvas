@@ -21,8 +21,8 @@ ctx.strokeStyle = '#f48fb1'
 ctx.lineWidth = 4
 ctx.strokeText('From Azure', 1600, 1400)
 
-canvas.toBuffer()
-  .then(buffer =>
-    fs.writeFileSync(join(process.cwd(), 'examples', 'to-blob.png'), buffer)
-  )
-  .catch(e => console.error(e))
+canvas.toDataURL('image/png').then(base64 => {
+  fs.writeFileSync(join(process.cwd(), 'examples', 'to-png.png'), base64.split(',')[1], {
+    encoding: 'base64'
+  })
+})

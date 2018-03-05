@@ -28,13 +28,14 @@
   "homepage": "https://github.com/rust-canvas/node-rust-canvas#readme",
   "devDependencies": {
     "@types/image-size": "^0.0.29",
+    "@types/jpeg-js": "^0.3.0",
     "@types/node": "^9.4.6",
+    "@types/upng-js": "^2.1.0",
     "canvas": "^1.6.9",
     "lodash": "^4.17.5",
     "microtime": "^2.1.7",
     "neon-cli": "^0.1.22",
     "readdir-enhanced": "^2.2.0",
-    "sharp": "^0.19.1",
     "shx": "^0.2.2",
     "tslint": "^5.9.1",
     "tslint-eslint-rules": "^5.0.0",
@@ -42,6 +43,8 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "image-size": "^0.6.2"
+    "image-size": "^0.6.2",
+    "jpeg-js": "^0.3.3",
+    "upng-js": "^2.1.0"
   }
 }

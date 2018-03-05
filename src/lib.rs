@@ -27,6 +27,7 @@ use rustcanvas::{CanvasContextType, CanvasMsg, Canvas2dMsg, create_canvas};
 use traits::*;
 use render::Render;
 use image_buffer::{image_buffer};
+use image::{ImageFormat};
 
 trait CheckArgument<'a> {
   fn check_argument<V: Value>(&mut self, i: i32) -> JsResult<'a, V>;
@@ -377,37 +378,26 @@ declare_types! {
         .expect("Check actions error")
         .to_vec(call.scope)
         .expect("Unpack actions error");
-      let callback = call.check_argument::<JsFunction>(1)
+      let format_type = call
+        .check_argument::<JsString>(1)
+        .expect("Check type error")
+        .value();
+      let encoder_options = call
+        .check_argument::<JsNumber>(2)
+        .expect("Check encoderOptions error")
+        .value() as f32;
+      let callback = call.check_argument::<JsFunction>(3)
         .expect("Check toBuffer callback error");
       let mut this = call.arguments.this(call.scope);
       let (width, height) = this.grab(|c| (c.width, c.height));
       let canvas_actions: Vec<Result<CanvasMsg, ()>> = collect_actions!(call, actions);
-      let ren = Render::new(canvas_actions, width, height);
+      let format = match format_type.as_ref() {
+        "image/jpeg" => ImageFormat::JPEG,
+        _ => ImageFormat::PNG,
+      };
+      let ren = Render::new(canvas_actions, width, height, format, encoder_options);
       ren.schedule(callback);
       Ok(JsUndefined::new().as_value(call.scope))
-    }
-
-    method toDataURL(mut call) {
-      let actions = call
-        .check_argument::<JsArray>(0)
-        .expect("Check actions error")
-        .to_vec(call.scope)
-        .expect("Unpack actions error");
-      let canvas_actions: Vec<Result<CanvasMsg, ()>> = collect_actions!(call, actions);
-      let (sender, reciver) = channel();
-      let mut this = call.arguments.this(call.scope);
-      let (width, height) = this.grab(|c| (c.width, c.height));
-      let canvas_size = Size2D::new(width as f64, height as f64);
-      let canvas = create_canvas(width, height, CanvasContextType::CTX2D);
-      let renderer = canvas.ctx;
-      let size_i32 = canvas_size.to_i32();
-      renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::GetImageData(
-        Rect::new(Point2D::new(0i32, 0i32), size_i32),
-        canvas_size,
-        sender,
-      ))).unwrap();
-      let bitmap = reciver.recv().unwrap();
-      image_buffer(bitmap, call.scope, width as u32, height as u32)
     }
   }
 }

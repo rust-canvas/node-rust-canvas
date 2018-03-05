@@ -6,4 +6,5 @@ index.node
 artifacts.json
 target
 examples/*.png
+examples/*.jpg
 Cargo.lock

@@ -8,16 +8,19 @@ use neon::vm::{JsResult};
 use rustcanvas::{CanvasMsg, Canvas2dMsg, create_canvas, CanvasContextType};
 
 use super::image_buffer::{image_buffer};
+use image::{ImageFormat};
 
 pub struct Render {
   actions: Vec<Result<CanvasMsg, ()>>,
   width: i32,
   height: i32,
+  format_type: ImageFormat,
+  encoder_options: f32,
 }
 
 impl Render {
-  pub fn new(actions: Vec<Result<CanvasMsg, ()>>, width: i32, height: i32) -> Render {
-    Render { actions, width, height }
+  pub fn new(actions: Vec<Result<CanvasMsg, ()>>, width: i32, height: i32, format_type: ImageFormat, encoder_options: f32) -> Render {
+    Render { actions, width, height, format_type, encoder_options }
   }
 }
 
@@ -56,7 +59,7 @@ impl Task for Render {
       let height = self.height as u32;
       match result {
         Ok(o) => {
-          image_buffer(o, scope, width, height)
+          image_buffer(o, scope, width, height, self.format_type, self.encoder_options)
             .and_then(|b| b.check::<JsBuffer>())
         },
         Err(e) => panic!(format!("{:?}", e)),
