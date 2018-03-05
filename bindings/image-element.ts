@@ -3,6 +3,8 @@ import axios from 'axios'
 import * as fs from 'fs'
 import * as util from 'util'
 import * as sizeOf from 'image-size'
+import UPNG = require('upng-js')
+import jpeg = require('jpeg-js')
 
 const readFileAsync = util.promisify(fs.readFile)
 
@@ -12,6 +14,7 @@ export class ImageElement {
 
   async toImageData() {
     if (this.src) {
+      let buffer: Buffer
       if (typeof this.src === 'string') {
         if (this.src.startsWith('http')) {
           const response = await axios({
@@ -19,26 +22,29 @@ export class ImageElement {
             url: this.src,
             responseType: 'arraybuffer'
           })
-          const data = Uint8ClampedArray.from(response.data)
-          const { height, width } = sizeOf(response.data)
-          this.height = height
-          this.width = width
-          return new ImageData(data, this.width, this.height)
+          buffer = response.data
         } else {
-          const buffer = await readFileAsync(this.src)
-          const data = Uint8ClampedArray.from(buffer)
-          const { height, width } = sizeOf(buffer)
-          this.height = height
-          this.width = width
-          return new ImageData(data, this.width, this.height)
+          buffer = await readFileAsync(this.src)
         }
       } else if (Buffer.isBuffer(this.src)) {
-        const data = Uint8ClampedArray.from(this.src)
-        const { height, width } = sizeOf(this.src)
-          this.height = height
-          this.width = width
-        return new ImageData(data, this.width, this.height)
+        buffer = this.src
+      } else {
+        return new ImageData(this.width, this.height)
       }
+      const { height, width, type } = sizeOf(buffer)
+      this.height = height
+      this.width = width
+      let data: Uint8ClampedArray
+      if (type === 'png') {
+        const rgba = new Buffer(UPNG.toRGBA8(UPNG.decode(buffer.buffer))[0])
+        data = Uint8ClampedArray.from(rgba)
+      } else if (type === 'jpg') {
+        const rawImageData = jpeg.decode(buffer)
+        data = Uint8ClampedArray.from(rawImageData.data)
+      } else {
+        return new ImageData(this.width, this.height)
+      }
+      return new ImageData(data, this.width, this.height)
     }
     return new ImageData(this.width, this.height)
   }
