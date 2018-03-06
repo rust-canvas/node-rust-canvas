@@ -22,11 +22,11 @@ reddir.sync(join(process.cwd(), 'benchmark', 'fixtures'))
 
     showMsg(`Benchmark ${ type } start`)
 
-    // const startCairo = microtime.now()
-    // await Promise.all(range(100).map(() => {
-    //   return func(cario)
-    // }))
-    // const cairoTime = microtime.now() - startCairo
+    const startCairo = microtime.now()
+    await Promise.all(range(100).map(() => {
+      return func(cario)
+    }))
+    const cairoTime = microtime.now() - startCairo
 
     await sleep(5000)
 
@@ -35,6 +35,6 @@ reddir.sync(join(process.cwd(), 'benchmark', 'fixtures'))
       return func(skia)
     }))
     const skiaTime = microtime.now() - startSkia
-    // showMsg(`Cairo run ${ type } cost: ${ cairoTime } ms`)
+    showMsg(`Cairo run ${ type } cost: ${ cairoTime } ms`)
     showMsg(`Skia  run ${ type } cost: ${ skiaTime } ms`)
   }, Promise.resolve())
