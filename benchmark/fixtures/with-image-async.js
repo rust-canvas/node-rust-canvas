@@ -14,12 +14,12 @@ module.exports = function simple ({ ctx, canvas, type, image }) {
   ctx.strokeText('From Azure', 1600, 1400)
   ctx.drawImage(image, 0, 0, 1240, 885)
   if (type === 'skia') {
-    return canvas.toBuffer()
+    return canvas.toBuffer().then(() => null)
   } else {
     return new Promise((resolve, reject) => {
-      canvas.toBuffer((err, data) => {
+      canvas.toBuffer((err) => {
         if (err) return reject(err)
-        resolve(data)
+        resolve()
       })
     })
   }
