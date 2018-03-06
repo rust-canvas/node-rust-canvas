@@ -9,3 +9,4 @@ examples/*.png
 examples/*.jpg
 examples/*.jpeg
 Cargo.lock
+!examples/image.*

@@ -323,13 +323,13 @@ export class Context2D {
     console.warn('drawFocusIfNeeded is unsupported now')
   }
 
-  async drawImage(
+  drawImage(
     image: CanvasImageSource,
     dxOrSx: number, dyOrSy: number, dWidthOrSWidth?: number, dHeightOrsHeight?: number,
-    dx?: number, dy?: number, dWidth?: number, dHeight?: number): Promise<void> {
+    dx?: number, dy?: number, dWidth?: number, dHeight?: number) {
     let imageData: ImageData
     if (image instanceof ImageElement) {
-      imageData = await (image as ImageElement).toImageData()
+      imageData = (image as ImageElement).toImageData()
     } else {
       console.warn('drawImage for non-ImageElement is unsupported now')
       return
