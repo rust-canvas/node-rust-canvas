@@ -7,16 +7,22 @@ import { Context2D } from './context-2d'
 
 export type CanvasCtxType = '2d' | 'webgl' | 'webgl2' | 'bitmaprenderer'
 
+const counterSymbol = Symbol('counter')
+let i = 0
+
 export class CanvasElement {
 
   private nativeCanvasPool: Canvas[]
   private freeCanvasPool: Canvas[]
-  private busyCanvasPool: Canvas[] = []
   private canvasRefCount: number[] = Array.from({ length: this.poolSize } as ArrayLike<number>).fill(0)
   private ctx!: Context2D
 
   constructor(public width = 300, public height = 150, private poolSize = os.cpus().length) {
-    this.nativeCanvasPool = Array.from({ length: poolSize }).map(() => new Canvas(width, height))
+    this.nativeCanvasPool = Array.from({ length: poolSize }).map(() => {
+      const canvas = new Canvas(width, height)
+      canvas[counterSymbol] = i++
+      return canvas
+    })
     this.freeCanvasPool = [...this.nativeCanvasPool]
   }
 
@@ -35,21 +41,20 @@ export class CanvasElement {
   }
 
   toBuffer(type = 'image/png', encoderOptions = 0) {
+    const { canvasRefCount } = this
     const nativeCanvas = this.freeCanvasPool.length
       ? this.freeCanvasPool.pop()!
-      : this.nativeCanvasPool[[...this.canvasRefCount].sort()[0]]
+      : this.nativeCanvasPool[canvasRefCount.indexOf([...canvasRefCount].sort((a, b) => a - b)[0])]
 
     const canvasIndex = this.nativeCanvasPool.indexOf(nativeCanvas)
-    this.canvasRefCount[canvasIndex]++
+    canvasRefCount[canvasIndex]++
     return new Promise<Buffer>((resolve, reject) => {
       nativeCanvas.toBuffer(
         this.ctx.actions,
         type,
         encoderOptions,
         (err, val) => {
-          if (!(--this.canvasRefCount[canvasIndex])) {
-            const busyIndex = this.busyCanvasPool.indexOf(nativeCanvas)
-            this.busyCanvasPool.splice(busyIndex, 1)
+          if (!(--canvasRefCount[canvasIndex])) {
             this.freeCanvasPool.push(nativeCanvas)
           }
           if (err) {
