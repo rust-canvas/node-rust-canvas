@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Canvas test</title>
+</head>
+
+<body>
+  <canvas id="canvas" width="1920" height="1080"></canvas>
+  <img src="./result.png">
+
+  <script>
+    const canvas = document.getElementById("canvas")
+    const ctx = canvas.getContext('2d')
+    const image = new Image(2481, 1773)
+    image.src = '../fixtures/image.png'
+    ctx.drawImage(image, 0, 0)
+    ctx.lineWidth = 20
+    ctx.strokeStyle = 'rgb(190,246,122)'
+    ctx.moveTo(200, 200)
+    ctx.lineTo(200, 400)
+    ctx.moveTo(400, 400)
+    ctx.bezierCurveTo(600, 600, 600, 1000, 400, 1400)
+    ctx.stroke()
+    ctx.font = '200px "PingFang TC"'
+    ctx.fillStyle = '#62efff'
+    ctx.fillText('ARKie 10s 做海报', 1000, 600)
+    ctx.strokeStyle = '#f48fb1'
+    ctx.lineWidth = 4
+    ctx.strokeText('From Azure', 1600, 1400)
+  </script>
+</body>
+
+</html>
