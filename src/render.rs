@@ -35,6 +35,7 @@ impl Task for Render {
     let width = self.width;
     let height = self.height;
     let renderer = self.renderer.clone();
+    let (sender, reciver) = channel();
     let renderer = renderer.lock().unwrap();
     for action in &self.actions {
       match action {
@@ -44,12 +45,12 @@ impl Task for Render {
     }
     let canvas_size = Size2D::new(width as f64, height as f64);
     let size_i32 = canvas_size.to_i32();
-    let (sender, reciver) = channel();
     renderer.send(CanvasMsg::Canvas2d(Canvas2dMsg::GetImageData(
       Rect::new(Point2D::new(0i32, 0i32), size_i32),
       canvas_size,
       sender,
     ))).unwrap();
+    drop(renderer);
     Ok(reciver.recv().unwrap())
   }
 

@@ -1,17 +1,23 @@
+import * as os from 'os'
+import * as jpeg from 'jpeg-js'
+import * as UPNG from 'upng-js'
+
 import { Canvas } from '../index'
 import { Context2D } from './context-2d'
-import jpeg = require('jpeg-js')
-import UPNG = require('upng-js')
 
 export type CanvasCtxType = '2d' | 'webgl' | 'webgl2' | 'bitmaprenderer'
 
 export class CanvasElement {
 
-  private nativeCanvas: Canvas
+  private nativeCanvasPool: Canvas[]
+  private freeCanvasPool: Canvas[]
+  private busyCanvasPool: Canvas[] = []
+  private canvasRefCount: number[] = Array.from({ length: this.poolSize } as ArrayLike<number>).fill(0)
   private ctx!: Context2D
 
-  constructor(public width = 300, public height = 150) {
-    this.nativeCanvas = new Canvas(width, height)
+  constructor(public width = 300, public height = 150, private poolSize = os.cpus().length) {
+    this.nativeCanvasPool = Array.from({ length: poolSize }).map(() => new Canvas(width, height))
+    this.freeCanvasPool = [...this.nativeCanvasPool]
   }
 
   getContext(ctxType: CanvasCtxType) {
@@ -29,12 +35,23 @@ export class CanvasElement {
   }
 
   toBuffer(type = 'image/png', encoderOptions = 0) {
+    const nativeCanvas = this.freeCanvasPool.length
+      ? this.freeCanvasPool.pop()!
+      : this.nativeCanvasPool[[...this.canvasRefCount].sort()[0]]
+
+    const canvasIndex = this.nativeCanvasPool.indexOf(nativeCanvas)
+    this.canvasRefCount[canvasIndex]++
     return new Promise<Buffer>((resolve, reject) => {
-      this.nativeCanvas.toBuffer(
+      nativeCanvas.toBuffer(
         this.ctx.actions,
         type,
         encoderOptions,
         (err, val) => {
+          if (!(--this.canvasRefCount[canvasIndex])) {
+            const busyIndex = this.busyCanvasPool.indexOf(nativeCanvas)
+            this.busyCanvasPool.splice(busyIndex, 1)
+            this.freeCanvasPool.push(nativeCanvas)
+          }
           if (err) {
             return reject(err)
           }
@@ -44,7 +61,8 @@ export class CanvasElement {
   }
 
   toBufferSync(type = 'image/png', encoderOptions = 0) {
-    return this.nativeCanvas.toBufferSync(this.ctx.actions, type, encoderOptions)
+    const nativeCanvas = this.nativeCanvasPool[0]
+    return nativeCanvas.toBufferSync(this.ctx.actions, type, encoderOptions)
   }
 
   toDataURL(type?: string, encoderOptions = 92) {
