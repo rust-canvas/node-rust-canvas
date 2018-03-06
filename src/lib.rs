@@ -20,6 +20,7 @@ use euclid::{Rect, Size2D, Point2D, Transform2D};
 use neon::mem::{Handle};
 use neon::js::{JsArray, JsFunction, JsObject, JsString, JsNumber, JsBoolean, JsUndefined, Object, Value, Variant};
 use neon::js::class::{JsClass, Class};
+use neon::js::binary::{JsBuffer};
 use neon::task::Task;
 use neon::vm::{Lock, JsResult, This, FunctionCall};
 use rustcanvas::{FillOrStrokeStyle, CompositionOrBlending, LineCapStyle, LineJoinStyle};
@@ -134,7 +135,7 @@ macro_rules! collect_actions {
             Ok(CanvasMsg::Canvas2d(Canvas2dMsg::NotImplement))
           },
           "DRAWIMAGE" => {
-            let data = to_array!($c.scope, v, "data");
+            let mut data = to_buffer!($c.scope, v, "data");
             let height = to_f64!($c.scope, v, "height");
             let width = to_f64!($c.scope, v, "width");
             let sx = to_f64!($c.scope, v, "sx");
@@ -145,7 +146,9 @@ macro_rules! collect_actions {
             let dy = to_f64!($c.scope, v, "dy");
             let d_width = to_f64!($c.scope, v, "dWidth");
             let d_height = to_f64!($c.scope, v, "dHeight");
-            let image_data = data.iter().map(|v| v.check::<JsNumber>().expect("Unpack JsNumber Error").value() as u8).collect();
+            let image_data = data.grab(|d| {
+              d.as_slice().to_vec()
+            });
             Ok(CanvasMsg::Canvas2d(Canvas2dMsg::DrawImage(
               image_data,
               Size2D::new(width, height),

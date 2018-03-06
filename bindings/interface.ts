@@ -82,7 +82,7 @@ export interface CreateRadialGradientAction {
 
 export interface DrawImageAction {
   type: 'DRAWIMAGE'
-  data: number[]
+  data: Buffer
   height: number
   width: number
   sx: number

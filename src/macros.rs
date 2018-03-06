@@ -18,6 +18,6 @@ macro_rules! to_object {
   ($s:expr, $o:expr, $k:expr) => { $o.get($s, $k).expect("to_object get fail").check::<JsObject>().expect(&format!("{} {}","to_object check fail".to_string(),$k.to_string())) }
 }
 
-macro_rules! to_array {
-  ($s:expr, $o:expr, $k:expr) => { $o.get($s, $k).expect("to_array get fail").check::<JsArray>().expect(&format!("{} {}","to_array check fail".to_string(),$k.to_string())).to_vec($s).unwrap() }
+macro_rules! to_buffer {
+  ($s:expr, $o:expr, $k:expr) => { $o.get($s, $k).expect("to_buffer get fail").check::<JsBuffer>().expect(&format!("{} {}","to_buffer check fail".to_string(),$k.to_string())) }
 }

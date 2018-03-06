@@ -25,14 +25,12 @@ export class ImageElement {
       this.width = width
       if (type === 'png') {
         const rgba = new Buffer(UPNG.toRGBA8(UPNG.decode(this.source.buffer))[0])
-        const data = Uint8ClampedArray.from(rgba)
-        return new ImageData(data, this.width, this.height)
+        return new ImageData(rgba, this.width, this.height)
       }
 
       if (type === 'jpg') {
         const rawImageData = jpeg.decode(this.source)
-        const data = Uint8ClampedArray.from(rawImageData.data)
-        return new ImageData(data, this.width, this.height)
+        return new ImageData(rawImageData.data, this.width, this.height)
       }
     }
     return new ImageData(this.width, this.height)

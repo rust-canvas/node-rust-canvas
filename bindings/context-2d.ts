@@ -351,7 +351,7 @@ export class Context2D {
     }
     this.actions.push({
       type: 'DRAWIMAGE',
-      data: Array.from(imageData.data),
+      data: imageData.data,
       width: imageData.width,
       height: imageData.height,
       dx,
