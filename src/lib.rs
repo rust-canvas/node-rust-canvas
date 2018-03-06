@@ -393,10 +393,6 @@ declare_types! {
         .check_argument::<JsString>(1)
         .expect("Check type error")
         .value();
-      let encoder_options = call
-        .check_argument::<JsNumber>(2)
-        .expect("Check encoderOptions error")
-        .value() as f32;
       let callback = call.check_argument::<JsFunction>(3)
         .expect("Check toBuffer callback error");
       let mut this = call.arguments.this(call.scope);
@@ -406,7 +402,7 @@ declare_types! {
         "image/jpeg" => ImageFormat::JPEG,
         _ => ImageFormat::PNG,
       };
-      let ren = Render::new(renderer, canvas_actions, width, height, format, encoder_options);
+      let ren = Render::new(renderer, canvas_actions, width, height, format);
       ren.schedule(callback);
       return Ok(JsUndefined::new().as_value(call.scope))
     }
