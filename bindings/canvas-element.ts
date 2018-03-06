@@ -70,19 +70,23 @@ export class CanvasElement {
     return nativeCanvas.toBufferSync(this.ctx.actions, type, encoderOptions)
   }
 
-  toDataURL(type?: string, encoderOptions = 92) {
+  /**
+   * @param type A DOMString indicating the image format. The default format type is image/png.
+   * @param encoderOptions A Number between 0 and 1 indicating image quality if the requested type is image/jpeg or image/webp.
+   * If this argument is anything else, the default value for image quality is used. The default value is 0.92. Other arguments are ignored.
+   */
+  toDataURL(type?: string, encoderOptions = 0.92) {
     let buffer = this.toBufferSync('image/png', encoderOptions)
     if (type === 'image/jpeg') {
       const rgba = new Buffer(UPNG.toRGBA8(UPNG.decode(buffer.buffer))[0])
-      let quality = encoderOptions === undefined ? 92 : encoderOptions * 100.0
-      if (typeof quality !== 'number' || isNaN(quality) || quality < 0 || quality > 100) {
-        quality = 92
+      if (typeof encoderOptions !== 'number' || isNaN(encoderOptions) || encoderOptions < 0 || encoderOptions > 1) {
+        encoderOptions = 0.92
       }
       const jpegImageData = jpeg.encode({
         data: rgba,
         width: this.width,
         height: this.height,
-      }, quality)
+      }, encoderOptions * 100.0)
       buffer = jpegImageData.data
     }
     const base64 = buffer.toString('base64')

@@ -43,7 +43,6 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
-    "axios": "^0.18.0",
     "image-size": "^0.6.2",
     "jpeg-js": "^0.3.3",
     "upng-js": "^2.1.0"
