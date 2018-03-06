@@ -2,27 +2,24 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{channel, Sender};
 
 use euclid::{Rect, Point2D, Size2D};
+use image::{ImageBuffer, ImageRgba8, ImageFormat};
 use neon::js::binary::{JsBuffer};
 use neon::scope::{Scope};
 use neon::task::{Task};
-use neon::vm::{JsResult};
+use neon::vm::{Lock, JsResult};
 use rustcanvas::{CanvasMsg, Canvas2dMsg};
-
-use super::image_buffer::{image_buffer};
-use image::{ImageFormat};
 
 pub struct Render {
   actions: Vec<Result<CanvasMsg, ()>>,
   width: i32,
   height: i32,
   format_type: ImageFormat,
-  encoder_options: f32,
   renderer: Arc<Mutex<Sender<CanvasMsg>>>,
 }
 
 impl Render {
-  pub fn new(renderer: Arc<Mutex<Sender<CanvasMsg>>>, actions: Vec<Result<CanvasMsg, ()>>, width: i32, height: i32, format_type: ImageFormat, encoder_options: f32) -> Render {
-    Render { renderer, actions, width, height, format_type, encoder_options }
+  pub fn new(renderer: Arc<Mutex<Sender<CanvasMsg>>>, actions: Vec<Result<CanvasMsg, ()>>, width: i32, height: i32, format_type: ImageFormat) -> Render {
+    Render { renderer, actions, width, height, format_type }
   }
 }
 
@@ -34,6 +31,7 @@ impl Task for Render {
   fn perform(&self) -> Result<Self::Output, Self::Error> {
     let width = self.width;
     let height = self.height;
+    let format_type = self.format_type;
     let renderer = self.renderer.clone();
     let (sender, reciver) = channel();
     let renderer = renderer.lock().unwrap();
@@ -51,19 +49,24 @@ impl Task for Render {
       sender,
     ))).unwrap();
     drop(renderer);
-    Ok(reciver.recv().unwrap())
+    let mut dist = vec![];
+    let png_buffer = ImageBuffer::from_raw(width as u32, height as u32, reciver.recv().unwrap()).unwrap();
+    let dynamic_image = ImageRgba8(png_buffer);
+    dynamic_image.save(&mut dist, format_type).unwrap();
+    Ok(dist)
   }
 
   fn complete<'a, T: Scope<'a>>(
     self,
     scope: &'a mut T,
     result: Result<Self::Output, Self::Error>) -> JsResult<Self::JsEvent> {
-      let width = self.width as u32;
-      let height = self.height as u32;
       match result {
-        Ok(o) => {
-          image_buffer(o, scope, width, height, self.format_type, self.encoder_options)
-            .and_then(|b| b.check::<JsBuffer>())
+        Ok(dist) => {
+          let mut js_buffer = JsBuffer::new(scope, dist.len() as u32).unwrap();
+          js_buffer.grab(|mut contents| {
+            contents.as_mut_slice().copy_from_slice(dist.as_ref());
+          });
+          Ok(js_buffer)
         },
         Err(e) => panic!(format!("{:?}", e)),
       }
