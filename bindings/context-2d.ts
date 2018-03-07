@@ -88,145 +88,177 @@ export class Context2D {
     return this.state.fillStyle
   }
   set fillStyle(fillStyle: Context2DState['fillStyle']) {
-    this.state.fillStyle = fillStyle
-    this.actions.push({
-      type: 'SET_FILLSTYLE', fillStyle,
-    })
+    if (this.state.fillStyle !== fillStyle) {
+      this.state.fillStyle = fillStyle
+      this.actions.push({
+        type: 'SET_FILLSTYLE', fillStyle,
+      })
+    }
   }
   get font(): Context2DState['font'] {
     return this.state.font
   }
   set font(font: Context2DState['font']) {
-    this.state.font = font
-    this.actions.push({
-      type: 'SET_FONT', font,
-    })
+    if (this.state.font !== font) {
+      this.state.font = font
+      this.actions.push({
+        type: 'SET_FONT', font,
+      })
+    }
   }
   get globalAlpha(): Context2DState['globalAlpha'] {
     return this.state.globalAlpha
   }
   set globalAlpha(globalAlpha: Context2DState['globalAlpha']) {
-    this.state.globalAlpha = globalAlpha
-    this.actions.push({
-      type: 'SET_GLOBALALPHA', globalAlpha,
-    })
+    if (globalAlpha !== this.state.globalAlpha) {
+      this.state.globalAlpha = globalAlpha
+      this.actions.push({
+        type: 'SET_GLOBALALPHA', globalAlpha,
+      })
+    }
   }
   get globalCompositeOperation(): Context2DState['globalCompositeOperation'] {
     return this.state.globalCompositeOperation
   }
   set globalCompositeOperation(globalCompositeOperation: Context2DState['globalCompositeOperation']) {
-    this.state.globalCompositeOperation = globalCompositeOperation
-    this.actions.push({
-      type: 'SET_GLOBALCOMPOSITEOPERATION', globalCompositeOperation,
-    })
+    if (globalCompositeOperation !== this.state.globalCompositeOperation) {
+      this.state.globalCompositeOperation = globalCompositeOperation
+      this.actions.push({
+        type: 'SET_GLOBALCOMPOSITEOPERATION', globalCompositeOperation,
+      })
+    }
   }
   get lineCap(): Context2DState['lineCap'] {
     return this.state.lineCap
   }
   set lineCap(lineCap: Context2DState['lineCap']) {
-    this.state.lineCap = lineCap
-    this.actions.push({
-      type: 'SET_LINECAP', lineCap,
-    })
+    if (this.state.lineCap !== lineCap) {
+      this.state.lineCap = lineCap
+      this.actions.push({
+        type: 'SET_LINECAP', lineCap,
+      })
+    }
   }
   get lineDashOffset(): Context2DState['lineDashOffset'] {
     return this.state.lineDashOffset
   }
   set lineDashOffset(lineDashOffset: Context2DState['lineDashOffset']) {
-    this.state.lineDashOffset = lineDashOffset
-    this.actions.push({
-      type: 'SET_LINEDASHOFFSET', lineDashOffset,
-    })
+    if (this.state.lineDashOffset !== lineDashOffset) {
+      this.state.lineDashOffset = lineDashOffset
+      this.actions.push({
+        type: 'SET_LINEDASHOFFSET', lineDashOffset,
+      })
+    }
   }
   get lineJoin(): Context2DState['lineJoin'] {
     return this.state.lineJoin
   }
   set lineJoin(lineJoin: Context2DState['lineJoin']) {
-    this.state.lineJoin = lineJoin
-    this.actions.push({
-      type: 'SET_LINEJOIN', lineJoin,
-    })
+    if (this.state.lineJoin !== lineJoin) {
+      this.state.lineJoin = lineJoin
+      this.actions.push({
+        type: 'SET_LINEJOIN', lineJoin,
+      })
+    }
   }
   get lineWidth(): Context2DState['lineWidth'] {
     return this.state.lineWidth
   }
   set lineWidth(lineWidth: Context2DState['lineWidth']) {
-    this.state.lineWidth = lineWidth
-    this.actions.push({
-      type: 'SET_LINEWIDTH', lineWidth,
-    })
+    if (this.state.lineWidth !== lineWidth) {
+      this.state.lineWidth = lineWidth
+      this.actions.push({
+        type: 'SET_LINEWIDTH', lineWidth,
+      })
+    }
   }
   get miterLimit(): Context2DState['miterLimit'] {
     return this.state.miterLimit
   }
   set miterLimit(miterLimit: Context2DState['miterLimit']) {
-    this.state.miterLimit = miterLimit
-    this.actions.push({
-      type: 'SET_MITERLIMIT', miterLimit,
-    })
+    if (this.state.miterLimit !== miterLimit) {
+      this.state.miterLimit = miterLimit
+      this.actions.push({
+        type: 'SET_MITERLIMIT', miterLimit,
+      })
+    }
   }
   get shadowBlur(): Context2DState['shadowBlur'] {
     return this.state.shadowBlur
   }
   set shadowBlur(shadowBlur: Context2DState['shadowBlur']) {
-    this.state.shadowBlur = shadowBlur
-    this.actions.push({
-      type: 'SET_SHADOWBLUR', shadowBlur,
-    })
+    if (this.state.shadowBlur !== shadowBlur) {
+      this.state.shadowBlur = shadowBlur
+      this.actions.push({
+        type: 'SET_SHADOWBLUR', shadowBlur,
+      })
+    }
   }
   get shadowColor(): Context2DState['shadowColor'] {
     return this.state.shadowColor
   }
   set shadowColor(shadowColor: Context2DState['shadowColor']) {
-    this.state.shadowColor = shadowColor
-    this.actions.push({
-      type: 'SET_SHADOWCOLOR', shadowColor,
-    })
+    if (this.state.shadowColor !== shadowColor) {
+      this.state.shadowColor = shadowColor
+      this.actions.push({
+        type: 'SET_SHADOWCOLOR', shadowColor,
+      })
+    }
   }
   get shadowOffsetX(): Context2DState['shadowOffsetX'] {
     return this.state.shadowOffsetX
   }
   set shadowOffsetX(shadowOffsetX: Context2DState['shadowOffsetX']) {
-    this.state.shadowOffsetX = shadowOffsetX
-    this.actions.push({
-      type: 'SET_SHADOWOFFSETX', shadowOffsetX,
-    })
+    if (this.state.shadowOffsetX !== shadowOffsetX) {
+      this.state.shadowOffsetX = shadowOffsetX
+      this.actions.push({
+        type: 'SET_SHADOWOFFSETX', shadowOffsetX,
+      })
+    }
   }
   get shadowOffsetY(): Context2DState['shadowOffsetY'] {
     return this.state.shadowOffsetY
   }
   set shadowOffsetY(shadowOffsetY: Context2DState['shadowOffsetY']) {
-    this.state.shadowOffsetY = shadowOffsetY
-    this.actions.push({
-      type: 'SET_SHADOWOFFSETY', shadowOffsetY,
-    })
+    if (this.state.shadowOffsetY !== shadowOffsetY) {
+      this.state.shadowOffsetY = shadowOffsetY
+      this.actions.push({
+        type: 'SET_SHADOWOFFSETY', shadowOffsetY,
+      })
+    }
   }
   get strokeStyle(): Context2DState['strokeStyle'] {
     return this.state.strokeStyle
   }
   set strokeStyle(strokeStyle: Context2DState['strokeStyle']) {
-    this.state.strokeStyle = strokeStyle
-    this.actions.push({
-      type: 'SET_STROKESTYLE', strokeStyle,
-    })
+    if (this.state.strokeStyle !== strokeStyle) {
+      this.state.strokeStyle = strokeStyle
+      this.actions.push({
+        type: 'SET_STROKESTYLE', strokeStyle,
+      })
+    }
   }
   get textAlign(): Context2DState['textAlign'] {
     return this.state.textAlign
   }
   set textAlign(textAlign: Context2DState['textAlign']) {
-    this.state.textAlign = textAlign
-    this.actions.push({
-      type: 'SET_TEXTALIGN', textAlign,
-    })
+    if (this.state.textAlign !== textAlign) {
+      this.state.textAlign = textAlign
+      this.actions.push({
+        type: 'SET_TEXTALIGN', textAlign,
+      })
+    }
   }
   get textBaseline(): Context2DState['textBaseline'] {
     return this.state.textBaseline
   }
   set textBaseline(textBaseline: Context2DState['textBaseline']) {
-    this.state.textBaseline = textBaseline
-    this.actions.push({
-      type: 'SET_TEXTBASELINE', textBaseline,
-    })
+    if (this.state.textBaseline !== textBaseline) {
+      this.state.textBaseline = textBaseline
+      this.actions.push({
+        type: 'SET_TEXTBASELINE', textBaseline,
+      })
+    }
   }
   private dashPattern?: number[]
 
@@ -481,6 +513,9 @@ export class Context2D {
     })
   }
 
+  /**
+   * resets (overrides) the current transformation to the identity matrix and then invokes a transformation described by the arguments of this method.
+   */
   setTransform(a: number, b: number, c: number, d: number, e: number, f: number) {
     this.state.transformA = a
     this.state.transformB = b
@@ -511,16 +546,21 @@ export class Context2D {
     })
   }
 
+  /**
+   * multiplies the current transformation with the matrix described by the arguments of this method
+   */
   transform(a: number, b: number, c: number, d: number, e: number, f: number) {
-    a *= this.state.transformA
-    b += this.state.transformB
-    c += this.state.transformC
-    d *= this.state.transformD
-    e += this.state.transformE
-    f += this.state.transformF
-    this.actions.push({
-      type: 'SETTRANSFORM', a, b, c, d, e, f,
-    })
+    if (a === 1 && b === 0 && c === 0 && d === 1 && e === 0 && f === 0) {
+      return
+    }
+    this.setTransform(
+      this.state.transformA * a,
+      this.state.transformB + b,
+      this.state.transformC + c,
+      this.state.transformD * d,
+      this.state.transformE + e,
+      this.state.transformF + f
+    )
   }
 
   translate(x: number, y: number) {
