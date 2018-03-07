@@ -13,12 +13,13 @@ module.exports = function simple ({ ctx, canvas, type }) {
   ctx.lineWidth = 4
   ctx.strokeText('From Azure', 1600, 1400)
   if (type === 'skia') {
-    return canvas.toBuffer()
+    return canvas.toBuffer().then(buffer => buffer.fill(0))
   } else {
     return new Promise((resolve, reject) => {
       canvas.toBuffer((err, data) => {
         if (err) return reject(err)
-        resolve(data)
+        data.fill(0)
+        resolve()
       })
     })
   }
