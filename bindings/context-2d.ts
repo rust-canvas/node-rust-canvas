@@ -341,13 +341,22 @@ export class Context2D {
     if (typeof dx === 'number' && typeof dy === 'number' && typeof dWidth === 'number' && typeof dHeight === 'number') {
       sx = dxOrSx
       sy = dyOrSy
-      sWidth = dWidthOrSWidth
-      sHeight = dHeightOrsHeight
+      sWidth = dWidthOrSWidth!
+      sHeight = dHeightOrsHeight!
     } else {
+      sx = 0
+      sy = 0
+      sWidth = imageData.width
+      sHeight = imageData.height
       dx = dxOrSx
       dy = dyOrSy
-      dWidth = dWidthOrSWidth
-      dHeight = dHeightOrsHeight
+      if (typeof dWidthOrSWidth === 'number' && typeof dHeightOrsHeight === 'number') {
+        dWidth = dWidthOrSWidth
+        dHeight = dHeightOrsHeight
+      } else {
+        dWidth = imageData.width
+        dHeight = imageData.height
+      }
     }
     this.actions.push({
       type: 'DRAWIMAGE',
@@ -356,12 +365,12 @@ export class Context2D {
       height: imageData.height,
       dx,
       dy,
-      dWidth: dWidth || imageData.width,
-      dHeight: dHeight || imageData.height,
-      sx: sx || 0,
-      sy: sy || 0,
-      sWidth: sWidth || dWidth || imageData.width,
-      sHeight: sHeight || dHeight || imageData.height,
+      dWidth: dWidth,
+      dHeight: dHeight,
+      sx,
+      sy,
+      sWidth,
+      sHeight,
     })
   }
 
