@@ -5,8 +5,6 @@ lib
 index.node
 artifacts.json
 target
-examples/**/*.png
-examples/**/*.jpg
-examples/**/*.jpeg
+examples/**/result.*
+examples/to-blob.png
 Cargo.lock
-!examples/fixtures/**
