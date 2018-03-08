@@ -2,7 +2,6 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{channel, Sender};
 
 use euclid::{Rect, Point2D, Size2D};
-use image::{ImageBuffer, ImageRgba8, ImageFormat};
 use neon::js::binary::{JsBuffer};
 use neon::scope::{Scope};
 use neon::task::{Task};
@@ -13,13 +12,12 @@ pub struct Render {
   actions: Vec<Result<CanvasMsg, ()>>,
   width: i32,
   height: i32,
-  format_type: ImageFormat,
   renderer: Arc<Mutex<Sender<CanvasMsg>>>,
 }
 
 impl Render {
-  pub fn new(renderer: Arc<Mutex<Sender<CanvasMsg>>>, actions: Vec<Result<CanvasMsg, ()>>, width: i32, height: i32, format_type: ImageFormat) -> Render {
-    Render { renderer, actions, width, height, format_type }
+  pub fn new(renderer: Arc<Mutex<Sender<CanvasMsg>>>, actions: Vec<Result<CanvasMsg, ()>>, width: i32, height: i32) -> Render {
+    Render { renderer, actions, width, height }
   }
 }
 
@@ -31,7 +29,6 @@ impl Task for Render {
   fn perform(&self) -> Result<Self::Output, Self::Error> {
     let width = self.width;
     let height = self.height;
-    let format_type = self.format_type;
     let renderer = self.renderer.clone();
     let (sender, reciver) = channel();
     let renderer = renderer.lock().unwrap();
@@ -49,11 +46,8 @@ impl Task for Render {
       sender,
     ))).unwrap();
     drop(renderer);
-    let mut dist = vec![];
-    let png_buffer = ImageBuffer::from_raw(width as u32, height as u32, reciver.recv().unwrap()).unwrap();
-    let dynamic_image = ImageRgba8(png_buffer);
-    dynamic_image.save(&mut dist, format_type).unwrap();
-    Ok(dist)
+    let data = reciver.recv().expect("Recive data fail");
+    Ok(data)
   }
 
   fn complete<'a, T: Scope<'a>>(
@@ -68,7 +62,7 @@ impl Task for Render {
           });
           Ok(js_buffer)
         },
-        Err(e) => panic!(format!("{:?}", e)),
+        Err(e) => panic!(e),
       }
   }
 }

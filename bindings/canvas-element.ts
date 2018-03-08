@@ -1,14 +1,15 @@
-import * as os from 'os'
-import * as jpeg from 'jpeg-js'
-import * as UPNG from 'upng-js'
+import * as Sharp from 'sharp'
 
 import { Canvas } from '../index'
 import { Context2D } from './context-2d'
 
+const deasync = require('deasync')
+
 export type CanvasCtxType = '2d' | 'webgl' | 'webgl2' | 'bitmaprenderer'
 
-const counterSymbol = Symbol('counter')
-let i = 0
+Sharp.simd(true)
+
+export type SupportedImageType = 'jpeg' | 'png'
 
 export class CanvasElement {
 
@@ -17,12 +18,8 @@ export class CanvasElement {
   private canvasRefCount: number[] = Array.from({ length: this.poolSize } as ArrayLike<number>).fill(0)
   private ctx!: Context2D
 
-  constructor(public width = 300, public height = 150, private poolSize = os.cpus().length) {
-    this.nativeCanvasPool = Array.from({ length: poolSize }).map(() => {
-      const canvas = new Canvas(width, height)
-      canvas[counterSymbol] = i++
-      return canvas
-    })
+  constructor(public width = 300, public height = 150, private poolSize = 1) {
+    this.nativeCanvasPool = Array.from({ length: poolSize }).map(() => new Canvas(width, height))
     this.freeCanvasPool = [...this.nativeCanvasPool]
   }
 
@@ -48,11 +45,10 @@ export class CanvasElement {
 
     const canvasIndex = this.nativeCanvasPool.indexOf(nativeCanvas)
     canvasRefCount[canvasIndex]++
+    const imageType = type.split('/')[1]
     return new Promise<Buffer>((resolve, reject) => {
       nativeCanvas.toBuffer(
         this.ctx.actions,
-        type,
-        encoderOptions,
         (err, val) => {
           if (!(--canvasRefCount[canvasIndex])) {
             this.freeCanvasPool.push(nativeCanvas)
@@ -63,11 +59,19 @@ export class CanvasElement {
           resolve(val)
         })
     })
+      .then(raw => this.formatImage(this.ctx.imageBuffers, raw, imageType as SupportedImageType, encoderOptions))
   }
 
-  toBufferSync(type = 'image/png', encoderOptions = 0) {
+  toBufferSync(type = 'image/png', encoderOptions = 0): Buffer {
     const nativeCanvas = this.nativeCanvasPool[0]
-    return nativeCanvas.toBufferSync(this.ctx.actions, type, encoderOptions)
+    const raw = nativeCanvas.toBufferSync(this.ctx.actions)
+    const imageType = type.split('/')[1]
+    const getBuffer = (callback: (err: Error | null, data?: Buffer) => any) => {
+      this.formatImage(this.ctx.imageBuffers, raw, imageType as SupportedImageType, encoderOptions)
+        .then(data => callback(null, data))
+        .catch(err => callback(err))
+    }
+    return deasync(getBuffer)()
   }
 
   /**
@@ -75,21 +79,34 @@ export class CanvasElement {
    * @param encoderOptions A Number between 0 and 1 indicating image quality if the requested type is image/jpeg or image/webp.
    * If this argument is anything else, the default value for image quality is used. The default value is 0.92. Other arguments are ignored.
    */
-  toDataURL(type?: string, encoderOptions = 0.92) {
-    let buffer = this.toBufferSync('image/png', encoderOptions)
-    if (type === 'image/jpeg') {
-      const rgba = new Buffer(UPNG.toRGBA8(UPNG.decode(buffer.buffer))[0])
-      if (typeof encoderOptions !== 'number' || isNaN(encoderOptions) || encoderOptions < 0 || encoderOptions > 1) {
-        encoderOptions = 0.92
-      }
-      const jpegImageData = jpeg.encode({
-        data: rgba,
-        width: this.width,
-        height: this.height,
-      }, encoderOptions * 100.0)
-      buffer = jpegImageData.data
+  toDataURL(type = 'image/png', encoderOptions = 0.92) {
+    if (typeof encoderOptions !== 'number' || isNaN(encoderOptions) || encoderOptions < 0 || encoderOptions > 1) {
+      encoderOptions = 0.92
     }
+    const buffer = this.toBufferSync(type, encoderOptions)
     const base64 = buffer.toString('base64')
     return `data:${type};base64,${base64}`
+  }
+
+  private async formatImage(imageBuffers: Buffer[], raw: Buffer, imageType: SupportedImageType, encoderOptions?: number) {
+    let sharp = Sharp(raw, {
+      raw: {
+        width: this.width,
+        height: this.height,
+        channels: 4,
+      }
+    })
+      .toFormat(
+        imageType, imageType === 'jpeg' ? { quality: encoderOptions } : { compressionLevel: 9 }
+      )
+    if (imageBuffers.length) {
+      sharp = await imageBuffers.reduce(async (acc, buffer) => {
+        const instance = await acc
+        const buf = await instance.overlayWith(buffer, { raw: { width: this.width, height: this.height, channels: 4 } })
+          .toBuffer()
+        return Sharp(buf)
+      }, Promise.resolve(sharp))
+    }
+    return sharp.toBuffer()
   }
 }

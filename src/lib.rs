@@ -1,11 +1,9 @@
 extern crate cssparser;
 extern crate euclid;
-extern crate image;
 #[macro_use] extern crate neon;
 extern crate neon_runtime;
 extern crate rustcanvas;
 
-mod image_buffer;
 #[macro_use] mod macros;
 mod traits;
 mod render;
@@ -28,8 +26,6 @@ use rustcanvas::{CanvasMsg, Canvas2dMsg, Context2d};
 
 use traits::*;
 use render::Render;
-use image_buffer::{image_buffer};
-use image::{ImageFormat};
 
 trait CheckArgument<'a> {
   fn check_argument<V: Value>(&mut self, i: i32) -> JsResult<'a, V>;
@@ -392,20 +388,12 @@ declare_types! {
         .expect("Check actions error")
         .to_vec(call.scope)
         .expect("Unpack actions error");
-      let format_type = call
-        .check_argument::<JsString>(1)
-        .expect("Check type error")
-        .value();
-      let callback = call.check_argument::<JsFunction>(3)
+      let callback = call.check_argument::<JsFunction>(1)
         .expect("Check toBuffer callback error");
       let mut this = call.arguments.this(call.scope);
       let (width, height, renderer) = this.grab(|c| (c.width, c.height, c.renderer.clone()));
       let canvas_actions = collect_actions!(call, actions).collect();
-      let format = match format_type.as_ref() {
-        "image/jpeg" => ImageFormat::JPEG,
-        _ => ImageFormat::PNG,
-      };
-      let ren = Render::new(renderer, canvas_actions, width, height, format);
+      let ren = Render::new(renderer, canvas_actions, width, height);
       ren.schedule(callback);
       return Ok(JsUndefined::new().as_value(call.scope))
     }
@@ -416,20 +404,8 @@ declare_types! {
         .expect("Check actions error")
         .to_vec(call.scope)
         .expect("Unpack actions error");
-      let format_type = call
-        .check_argument::<JsString>(1)
-        .expect("Check type error")
-        .value();
-      let encoder_options = call
-        .check_argument::<JsNumber>(2)
-        .expect("Check encoderOptions error")
-        .value() as f32;
       let mut this = call.arguments.this(call.scope);
       let (width, height, renderer) = this.grab(|c| (c.width, c.height, c.renderer.clone()));
-      let format = match format_type.as_ref() {
-        "image/jpeg" => ImageFormat::JPEG,
-        _ => ImageFormat::PNG,
-      };
       let renderer = renderer.lock().unwrap();
       collect_actions!(call, actions).for_each(|action: Result<CanvasMsg, ()>| match action {
         Ok(a) => renderer.send(a.clone()).unwrap(),
@@ -443,8 +419,13 @@ declare_types! {
         canvas_size,
         sender,
       ))).unwrap();
-      let b = reciver.recv().unwrap();
-      image_buffer(b, call.scope, width as u32, height as u32, format, encoder_options)
+      drop(renderer);
+      let dist = reciver.recv().unwrap();
+      let mut js_buffer = JsBuffer::new(call.scope, dist.len() as u32).unwrap();
+      js_buffer.grab(|mut contents| {
+        contents.as_mut_slice().copy_from_slice(dist.as_ref());
+      });
+      Ok(js_buffer.as_value(call.scope))
     }
   }
 }

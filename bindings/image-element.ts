@@ -1,7 +1,8 @@
 import { ImageData } from './image-data'
 import * as sizeOf from 'image-size'
-import UPNG = require('upng-js')
-import jpeg = require('jpeg-js')
+import * as Sharp from 'sharp'
+
+const deasync = require('deasync')
 
 export class ImageElement {
   source!: Buffer
@@ -20,18 +21,25 @@ export class ImageElement {
 
   toImageData() {
     if (this.source) {
-      const { height, width, type } = sizeOf(this.source)
+      const { height, width } = sizeOf(this.source)
       this.height = height
       this.width = width
-      if (type === 'png') {
-        const rgba = new Buffer(UPNG.toRGBA8(UPNG.decode(this.source.buffer))[0])
-        return new ImageData(rgba, this.width, this.height)
+      let sharp = Sharp(this.source).raw()
+      const getMeta = deasync((callback: any) => sharp.metadata().then(m => callback(null, m)).catch(e => callback(e)))
+      const meta = getMeta()
+      if (!meta.hasAlpha) {
+        const alpha = Buffer.alloc(width * height).fill(255)
+        sharp = sharp.joinChannel(alpha, {
+          raw: {
+            width: width,
+            height: height,
+            channels: 1
+          }
+        })
       }
-
-      if (type === 'jpg') {
-        const rawImageData = jpeg.decode(this.source)
-        return new ImageData(rawImageData.data, this.width, this.height)
-      }
+      const syncToBuffer = deasync(sharp.toBuffer.bind(sharp))
+      const raw = syncToBuffer()
+      return new ImageData(raw, this.width, this.height)
     }
     return new ImageData(this.width, this.height)
   }

@@ -5,6 +5,8 @@ import { ImageData } from './image-data'
 import { ImageElement } from './image-element'
 import * as Types from './interface'
 
+import { Canvas } from '../index'
+
 export type GlobalCompositeOperationType = 'source-over' | 'source-in' | 'source-out' | 'source-atop' |
   'destination-over' | 'destination-in' | 'destination-out' | 'destination-atop' | 'lighter' | 'copy' |
   'xor' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten' | 'color-dodge' | 'color-burn' |
@@ -265,7 +267,10 @@ export class Context2D {
   state: Context2DState = { ...Context2D.defaultState }
   states: Context2DState[] = []
 
+  // @internal
   actions: Types.Action[] = []
+  // @internal
+  imageBuffers: Buffer[] = []
 
   constructor(public canvas: CanvasElement) {
     Object.assign(this, this.state)
@@ -391,7 +396,7 @@ export class Context2D {
         dHeight = imageData.height
       }
     }
-    this.actions.push({
+    const drawAction = {
       type: 'DRAWIMAGE',
       data: imageData.data,
       width: imageData.width,
@@ -404,7 +409,14 @@ export class Context2D {
       sy,
       sWidth,
       sHeight,
-    })
+    }
+    const imageCanvas = new Canvas(this.canvas.width, this.canvas.height)
+    const ctx = new Context2D(this.canvas)
+    if (this.actions.length > 16) {
+      Object.assign(ctx, this.state)
+    }
+    const buffer = imageCanvas.toBufferSync([...ctx.actions, drawAction as Types.DrawImageAction])
+    this.imageBuffers.push(buffer)
   }
 
   fill(fillRule: Types.FillRule) {
