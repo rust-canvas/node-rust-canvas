@@ -161,12 +161,10 @@ export interface RectAction {
 
 export interface RestoreAction {
   type: 'RESTORE'
-  state: Context2DState
 }
 
 export interface SaveAction {
   type: 'SAVE'
-  state: Context2DState
 }
 
 export interface SetLineDashAction {

@@ -74,134 +74,126 @@ ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 593.6415047889432, 1380.388820252522)
 ctx.save()
-ctx.restore()
-ctx.save()
 ctx.transform(1, 0, 0, 1, 5.000000129484761e-7, -35.11767800000001)
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -286.65)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  195px "HYDaShengTiJ"'
+ctx.font = 'normal  195px "PingFang TC"'
 ctx.fillText('雷', -97.5, 61.42499999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -95.54999999999995)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  195px "HYDaShengTiJ"'
+ctx.font = 'normal  195px "PingFang TC"'
 ctx.fillText('厉', -97.5, 61.42499999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 95.55000000000001)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  195px "HYDaShengTiJ"'
+ctx.font = 'normal  195px "PingFang TC"'
 ctx.fillText('风', -97.5, 61.42499999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 286.65)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  195px "HYDaShengTiJ"'
+ctx.font = 'normal  195px "PingFang TC"'
 ctx.fillText('行', -97.5, 61.42499999999998, undefined)
 ctx.restore()
-ctx.restore()
-ctx.save()
 ctx.restore()
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 739.8764247838543, 1398.2789736521404)
 ctx.save()
-ctx.restore()
-ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -52.30787299999997)
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -349.86)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('有', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -299.88)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('执', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -249.90000000000003)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('着', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -199.92000000000002)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('的', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -149.94000000000003)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('梦', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -99.96000000000004)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('也', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -49.98000000000002)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('有', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('洒', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 49.97999999999996)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('脱', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 99.95999999999998)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('的', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 149.93999999999994)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('生', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 199.91999999999996)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('活', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 249.89999999999998)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('和', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 299.88)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('红', -25.5, 16.064999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 349.86)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  51px "HYDaShengTiJ"'
+ctx.font = 'normal  51px "PingFang TC"'
 ctx.fillText('包', -25.5, 16.064999999999998, undefined)
 ctx.restore()
-ctx.restore()
-ctx.save()
 ctx.restore()
 ctx.restore()
 ctx.save()
@@ -213,57 +205,51 @@ ctx.transform(1, 0, 0, 1, 0, -66.640985)
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -132.3)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  90px "HYDaShengTiJ"'
+ctx.font = 'normal  90px "PingFang TC"'
 ctx.fillText('谨', -45, 28.349999999999994, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -44.10000000000002)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  90px "HYDaShengTiJ"'
+ctx.font = 'normal  90px "PingFang TC"'
 ctx.fillText('贺', -45, 28.349999999999994, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 44.099999999999994)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  90px "HYDaShengTiJ"'
+ctx.font = 'normal  90px "PingFang TC"'
 ctx.fillText('新', -45, 28.349999999999994, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 132.3)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  90px "HYDaShengTiJ"'
+ctx.font = 'normal  90px "PingFang TC"'
 ctx.fillText('春', -45, 28.349999999999994, undefined)
 ctx.restore()
-ctx.restore()
-ctx.save()
 ctx.restore()
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 939.0283286794227, 1213.0934002049873)
 ctx.save()
-ctx.restore()
-ctx.save()
 ctx.transform(1, 0, 0, 1, 4.999999987376214e-7, -109.28229950000002)
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -88.20000000000002)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  90px "HYDaShengTiJ"'
+ctx.font = 'normal  90px "PingFang TC"'
 ctx.fillText('雷', -45, 28.349999999999994, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -2.842170943040401e-14)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  90px "HYDaShengTiJ"'
+ctx.font = 'normal  90px "PingFang TC"'
 ctx.fillText('佳', -45, 28.349999999999994, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 88.19999999999999)
 ctx.fillStyle = '#000000'
-ctx.font = 'normal  90px "HYDaShengTiJ"'
+ctx.font = 'normal  90px "PingFang TC"'
 ctx.fillText('音', -45, 28.349999999999994, undefined)
 ctx.restore()
-ctx.restore()
-ctx.save()
 ctx.restore()
 ctx.restore()
 ctx.save()
@@ -284,85 +270,77 @@ ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 1016.5948767945689, 1112.7518828219565)
 ctx.save()
-ctx.restore()
-ctx.save()
 ctx.transform(1, 0, 0, 1, -5.000000058430487e-7, -43.740781999999996)
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -78.4)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  40px "HYDaShengTiJ"'
+ctx.font = 'normal  40px "PingFang TC"'
 ctx.fillText('农', -20, 12.599999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -39.2)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  40px "HYDaShengTiJ"'
+ctx.font = 'normal  40px "PingFang TC"'
 ctx.fillText('历', -20, 12.599999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  40px "HYDaShengTiJ"'
+ctx.font = 'normal  40px "PingFang TC"'
 ctx.fillText('戊', -20, 12.599999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 39.19999999999999)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  40px "HYDaShengTiJ"'
+ctx.font = 'normal  40px "PingFang TC"'
 ctx.fillText('戌', -20, 12.599999999999998, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 78.4)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  40px "HYDaShengTiJ"'
+ctx.font = 'normal  40px "PingFang TC"'
 ctx.fillText('年', -20, 12.599999999999998, undefined)
 ctx.restore()
-ctx.restore()
-ctx.save()
 ctx.restore()
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 60.36585365853671, 1476.72131147541)
 ctx.save()
-ctx.restore()
-ctx.save()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -112)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  28px "SiYuanBold"'
+ctx.font = 'normal  28px "PingFang TC"'
 ctx.fillText('长', -14, 8.819999999999999, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -67.2)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  28px "SiYuanBold"'
+ctx.font = 'normal  28px "PingFang TC"'
 ctx.fillText('按', -14, 8.819999999999999, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, -22.400000000000006)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  28px "SiYuanBold"'
+ctx.font = 'normal  28px "PingFang TC"'
 ctx.fillText('扫', -14, 8.819999999999999, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 22.400000000000006)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  28px "SiYuanBold"'
+ctx.font = 'normal  28px "PingFang TC"'
 ctx.fillText('码', -14, 8.819999999999999, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 67.19999999999999)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  28px "SiYuanBold"'
+ctx.font = 'normal  28px "PingFang TC"'
 ctx.fillText('开', -14, 8.819999999999999, undefined)
 ctx.restore()
 ctx.save()
 ctx.transform(1, 0, 0, 1, 0, 112)
 ctx.fillStyle = '#050202'
-ctx.font = 'normal  28px "SiYuanBold"'
+ctx.font = 'normal  28px "PingFang TC"'
 ctx.fillText('玩', -14, 8.819999999999999, undefined)
 ctx.restore()
-ctx.restore()
-ctx.save()
 ctx.restore()
 ctx.restore()
 ctx.restore()

@@ -263,6 +263,7 @@ export class Context2D {
   private dashPattern?: number[]
 
   state: Context2DState = { ...Context2D.defaultState }
+  states: Context2DState[] = []
 
   actions: Types.Action[] = []
 
@@ -480,9 +481,13 @@ export class Context2D {
   }
 
   restore() {
-    this.actions.push({
-      type: 'RESTORE', state: this.state,
-    })
+    const state = this.states.pop()
+    if (state) {
+      this.state = state
+      this.actions.push({
+        type: 'RESTORE',
+      })
+    }
   }
 
   rotate(angle: number) {
@@ -492,8 +497,9 @@ export class Context2D {
   }
 
   save() {
+    this.states.push({ ...this.state })
     this.actions.push({
-      type: 'SAVE', state: this.state,
+      type: 'SAVE',
     })
   }
 
