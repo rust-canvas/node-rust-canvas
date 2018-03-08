@@ -316,6 +316,7 @@ export class Context2D {
     this.actions.push({
       type: 'CLOSEPATH'
     })
+    this.stroke()
   }
 
   createImageData(imageData: ImageData): ImageData
